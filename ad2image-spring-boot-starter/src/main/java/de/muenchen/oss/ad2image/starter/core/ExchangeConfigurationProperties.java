@@ -22,17 +22,28 @@
  */
 package de.muenchen.oss.ad2image.starter.core;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.constraints.NotEmpty;
+
 /**
  * @author michael.prankl
  */
+@Validated
+@ConfigurationProperties(prefix = "de.muenchen.oss.ad2image.ews")
 public class ExchangeConfigurationProperties {
 
     /**
-     * EWS service URL, e.g. 
+     * EWS service URL, e.g.
      */
+    @NotEmpty
     private String ewsServiceUrl;
+    @NotEmpty
     private String username;
+    @NotEmpty
     private String password;
+    @NotEmpty
     private String domain;
 
     public String getUsername() {

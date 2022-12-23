@@ -28,31 +28,32 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 
+import de.muenchen.oss.ad2image.starter.core.Ad2ImageConfigurationProperties;
 import de.muenchen.oss.ad2image.starter.core.AdConfigurationProperties;
 import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
-import de.muenchen.oss.ad2image.starter.core.Ad2ImageConfigurationProperties;
+import de.muenchen.oss.ad2image.starter.core.ExchangeConfigurationProperties;
 
 @AutoConfiguration
 @ConditionalOnProperty(value = "de.muenchen.oss.ad2image.enabled", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(value = { WebMvcAutoConfiguration.class })
 public class Ad2ImageAutoConfiguration {
 
+    @Configuration
+    @EnableConfigurationProperties({ Ad2ImageConfigurationProperties.class, ExchangeConfigurationProperties.class, AdConfigurationProperties.class })
+    static class ConfigPropertiesConfiguration {
+    }
+
     @Bean
     @ConditionalOnMissingBean
     AvatarService avatarService(AvatarLoader avatarLoader) {
         return new AvatarService(avatarLoader);
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "de.muenchen.oss.ad2image")
-    Ad2ImageConfigurationProperties ad2ImageConfigProps() {
-        return new Ad2ImageConfigurationProperties();
     }
 
     @Bean
@@ -76,8 +77,7 @@ public class Ad2ImageAutoConfiguration {
 
     @Bean("ad2ImageLdapContextSource")
     @ConditionalOnMissingBean(name = "ad2ImageLdapContextSource")
-    LdapContextSource ad2ImageLdapContextSource(Ad2ImageConfigurationProperties ad2ImageProps) {
-        AdConfigurationProperties adConfProps = ad2ImageProps.getAd();
+    LdapContextSource ad2ImageLdapContextSource(AdConfigurationProperties adConfProps) {
         LdapContextSource ldapContextSource = new LdapContextSource();
         ldapContextSource.setUrl(adConfProps.getUrl());
         ldapContextSource.setUserDn(adConfProps.getUserDn());
