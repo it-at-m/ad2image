@@ -9,20 +9,15 @@ on:
 jobs:
   compliance:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Advance Security Compliance Action
-        uses: GeekMasher/advanced-security-compliance@v1.6
+      - name: Advance Security Policy as Code
+        uses: advanced-security/policy-as-code@v2.0
         with:
           policy: GeekMasher/security-queries
           policy-path: policies/default.yml
-
           token: ${{ secrets.ACCESS_TOKEN }}
-
-          argvs: "--disable-dependabot --disable-secret-scanning --disable-code-scanning"
 
   build-maven:
     needs: compliance
