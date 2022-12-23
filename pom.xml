@@ -1,0 +1,273 @@
+<!--
+
+    The MIT License
+    Copyright © 2022 Landeshauptstadt München | it@M
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.0.0</version>
+	</parent>
+
+	<groupId>de.muenchen.oss.ad2image</groupId>
+	<artifactId>ad2image-parent</artifactId>
+	<name>ad2image :: parent</name>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<url>https://github.com/it-at-m/ad2image</url>
+
+	<properties>
+		<java.version>17</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+
+		<spring.boot.version>3.0.0</spring.boot.version>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+	</properties>
+
+	<modules>
+		<module>ad2image-spring-boot-starter</module>
+		<module>ad2image-app</module>
+	</modules>
+
+	<distributionManagement>
+		<!-- Central Repository -->
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- internal dependency management -->
+			<dependency>
+				<groupId>de.muenchen.oss.ad2image</groupId>
+				<artifactId>ad2image-spring-boot-starter</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce required maven and jdk version</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>[3.6,)</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>[${java.version},)</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- license plugin -->
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>4.2.rc2</version>
+				<configuration>
+					<properties>
+						<owner>Landeshauptstadt München | it@M</owner>
+						<year>2022</year>
+					</properties>
+					<licenseSets>
+						<licenseSet>
+							<header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
+							<includes>
+								<include>**/*.java</include>
+								<include>**/*.xml</include>
+								<include>**/*.yml</include>
+								<include>**/*.properties</include>
+							</includes>
+							<excludes>
+								<exclude>**/LICENSE</exclude>
+								<exclude>**/README</exclude>
+								<exclude>**/src/test/resources/**</exclude>
+								<exclude>**/src/main/resources/**</exclude>
+							</excludes>
+						</licenseSet>
+					</licenseSets>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<dependencyEnforce>true</dependencyEnforce>
+					<dependencyPolicies>
+						<dependencyPolicy>
+							<type>LICENSE_NAME</type>
+							<rule>APPROVE</rule>
+							<value>Apache License, Version 2.0</value>
+						</dependencyPolicy>
+						<dependencyPolicy>
+							<type>LICENSE_NAME</type>
+							<rule>APPROVE</rule>
+							<value>The Apache Software License, Version 2.0</value>
+						</dependencyPolicy>
+						<dependencyPolicy>
+							<type>LICENSE_NAME</type>
+							<rule>APPROVE</rule>
+							<value>MIT License</value>
+						</dependencyPolicy>
+					</dependencyPolicies>
+				</configuration>
+				<executions>
+					<execution>
+						<id>check-license-headers</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Nexus Staging Plugin -->
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.13</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>false</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<!-- Deployment profile (required so these plugins are only used when deploying) -->
+
+		<profile>
+			<id>deploy</id>
+			<build>
+				<plugins>
+					<!-- maven versions plugin-->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>versions-maven-plugin</artifactId>
+						<version>2.13.0</version>
+					</plugin>
+					<!-- Source plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.2.1</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Javadoc plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.3.2</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<doclint>none</doclint>
+							<sourceFileIncludes>
+								<sourceFileInclude>**/*.java</sourceFileInclude>
+							</sourceFileIncludes>
+						</configuration>
+					</plugin>
+
+					<!-- GPG plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<!-- Prevent `gpg` from using pinentry programs -->
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Michael Prankl</name>
+			<organization>Landeshauptstadt München</organization>
+			<url>https://github.com/eidottermihi</url>
+			<roles>
+				<role>initiator</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<scm>
+		<url>https://github.com/it-at-m/ad2image</url>
+		<connection>scm:git:git@github.com:it-at-m/ad2image.git</connection>
+		<developerConnection>scm:git:git@github.com:it-at-m/ad2image.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+</project>

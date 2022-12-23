@@ -1,0 +1,89 @@
+name: release
+
+# Run workflow on commits to the `main` branch
+on:
+  workflow_dispatch:
+    inputs:
+      snapshot-build:
+        description: "Snapshot build (y/n)?"
+        required: true
+        default: "y"
+      release-tag:
+        description: "Release Tag (only if not snapshot)"
+        required: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Java and Maven
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: "temurin"
+
+      - name: Remove SNAPSHOT
+        if: github.event.inputs.snapshot-build == 'n'
+        run: |
+          mvn versions:set --batch-mode -DremoveSnapshot -DprocessAllModules
+      - name: Release Maven package
+        uses: samuelmeuli/action-maven-publish@v1
+        with:
+          gpg_private_key: ${{ secrets.gpg_private_key }}
+          gpg_passphrase: ${{ secrets.gpg_passphrase }}
+          nexus_username: ${{ secrets.nexus_username }}
+          nexus_password: ${{ secrets.nexus_password }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_KEY }}
+
+      - name: Set Release version env variable
+        run: |
+          echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      - name: Build and push app
+        uses: docker/build-push-action@v2
+        with:
+          context: ./ad2image-app
+          push: true
+          tags: itatm/ad2image:${{ env.RELEASE_VERSION }},itatm/ad2image:dev
+
+  github-release:
+    name: Create Release
+    if: github.event.inputs.snapshot-build == 'n'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ github.event.inputs.release-tag }}',
+              sha: context.sha
+            })
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.release-tag }}
+          release_name: Release ${{ github.event.inputs.release-tag }}
+          draft: false
+          prerelease: false

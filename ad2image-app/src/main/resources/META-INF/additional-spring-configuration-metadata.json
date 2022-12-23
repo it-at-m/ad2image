@@ -1,0 +1,9 @@
+{
+	"properties": [
+		{
+			"name": "de.muenchen.oss.ad2image.web.docs.url",
+			"type": "java.lang.String",
+			"description": "URL providing documentation"
+		}
+	]
+}

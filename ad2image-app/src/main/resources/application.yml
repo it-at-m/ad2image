@@ -1,0 +1,14 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ad2image
+  cache:
+    jcache:
+      config: classpath:default_ehcache.xml
+
+logging:
+  level:
+    '[org.apache.hc.client5.http.impl.auth.HttpAuthenticator]': ERROR
+    
