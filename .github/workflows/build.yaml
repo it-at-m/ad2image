@@ -18,6 +18,7 @@ jobs:
           policy: GeekMasher/security-queries
           policy-path: policies/default.yml
           token: ${{ secrets.ACCESS_TOKEN }}
+          argvs: "--disable-dependabot --disable-secret-scanning --disable-code-scanning"
 
   build-maven:
     needs: compliance
