@@ -22,18 +22,26 @@
  */
 package de.muenchen.oss.ad2image.starter.core;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.Valid;
 
 /**
  * @author michael.prankl
  *
  */
+@Validated
+@ConfigurationProperties(prefix = "de.muenchen.oss.ad2image")
 public class Ad2ImageConfigurationProperties {
 
     @NestedConfigurationProperty
+    @Valid
     private AdConfigurationProperties ad;
 
     @NestedConfigurationProperty
+    @Valid
     private ExchangeConfigurationProperties ews;
 
     /**

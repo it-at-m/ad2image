@@ -34,7 +34,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
 
-    @Value("${de.muenchen.oss.ad2image.web.docs.url:https://git.muenchen.de/km23/mucatar}")
+    @Value("${de.muenchen.oss.ad2image.web.docs.url:https://github.com/it-at-m/ad2image}")
     private String docsUrl;
 
     @Override

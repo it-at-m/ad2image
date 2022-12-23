@@ -22,14 +22,22 @@
  */
 package de.muenchen.oss.ad2image.starter.core;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.constraints.NotEmpty;
+
 /**
  * @author michael.prankl
  */
+@Validated
+@ConfigurationProperties(prefix = "de.muenchen.oss.ad2image.ad")
 public class AdConfigurationProperties {
 
     /**
      * Connection URL for AD server, for example 'ldaps://ad.mydomain.com:636'.
      */
+    @NotEmpty
     private String url;
 
     /**
@@ -42,18 +50,23 @@ public class AdConfigurationProperties {
      */
     private String password;
 
+    @NotEmpty
     private String uidAttribute = "uid";
+    @NotEmpty
     private String mailAttribute = "mail";
+    @NotEmpty
     private String thumbnailPhotoAttribute = "thumbnailPhoto";
 
     /**
      * User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.
      */
+    @NotEmpty
     private String userSearchBase;
 
     /**
      * User Search filter, {uid} will be replaced with the requested user uid.
      */
+    @NotEmpty
     private String userSearchFilter = "(&(objectClass=organizationalPerson)(cn={uid}))";
 
     public String getUrl() {
