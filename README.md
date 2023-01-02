@@ -95,11 +95,51 @@ Possible resolutions (`size`):
 
 ### Running as a container (standalone)
 
-:construction: TODO
+You can use the provided official Docker image [itatm/ad2image](https://hub.docker.com/r/itatm/ad2image) to run **ad2image** as a standalone application.
+
+```sh
+docker run -d -p 8080:8080 --name ad2image itatm/ad2image:1.0.1
+```
+
+To connect to your Exchange/EWS environment, some environment variables must be set:
+
+| Variable                                         | Description                                                                                                                                                                                                                     | Default value                                     |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_URL`                | Connection URL for AD server, for example 'ldaps://ad.mydomain.com:636'.                                                                                                                                                        | -                                                 |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_DN`            | Bind User-DN for AD authentication                                                                                                                                                                                              | -                                                 |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_PASSWORD`           | Password for AD authentication                                                                                                                                                                                                  | -                                                 |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_BASE`   | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                                   | -                                                 |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_FILTER` | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_EWS_SERVICE_URL`   | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. 'https://computer.domain.contoso.com/EWS/Exchange.asmx'. | -                                                 |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_USERNAME`          | Username for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_PASSWORD`          | Password for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_DOMAIN`            | Exchange/EWS domain, e.g. 'domain.contoso.com'                                                                                                                                                                                  | -                                                 |
 
 ### Integrating in a existing Spring Boot application
 
-:construction: TODO
+ad2image can be integrated in a existing Spring Boot application by adding the `ad2image-spring-boot-starter` dependency, e.g. for Maven:
+
+```xml
+<dependency>
+  <groupId>de.muenchen.oss.ad2image</groupId>
+  <artifactId>ad2image-spring-boot-starter</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
+
+To configure ad2image, the following configuration properties can be configured:
+
+| Configuration property                           | Description                                                                                                                                                                                                                     | Default value                                     |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `de.muenchen.oss.ad2image.ad.url`                | Connection URL for AD server, for example 'ldaps://ad.mydomain.com:636'.                                                                                                                                                        | -                                                 |
+| `de.muenchen.oss.ad2image.ad.user-dn`            | Bind User-DN for AD authentication                                                                                                                                                                                              | -                                                 |
+| `de.muenchen.oss.ad2image.ad.password`           | Password for AD authentication                                                                                                                                                                                                  | -                                                 |
+| `de.muenchen.oss.ad2image.ad.user-search-base`   | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                                   | -                                                 |
+| `de.muenchen.oss.ad2image.ad.user-search-filter` | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` |
+| `de.muenchen.oss.ad2image.ews.ews-service-url`   | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. 'https://computer.domain.contoso.com/EWS/Exchange.asmx'. | -                                                 |
+| `de.muenchen.oss.ad2image.ews.username`          | Username for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 |
+| `de.muenchen.oss.ad2image.ews.password`          | Password for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 |
+| `de.muenchen.oss.ad2image.ews.domain`            | Exchange/EWS domain, e.g. 'domain.contoso.com'                                                                                                                                                                                  | -                                                 |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
