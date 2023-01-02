@@ -22,9 +22,9 @@
 
   <p align="center">
     <i>easy avatars powered by AD & Identicons</i>
-    <br /><a href="#">Report Bug</a>
+    <br /><a href="https://github.com/it-at-m/ad2image/issues/new?assignees=&labels=&template=bug_report.md&title=">Report Bug</a>
     ·
-    <a href="#">Request Feature</a>
+    <a href="https://github.com/it-at-m/ad2image/issues/new?assignees=&labels=&template=feature_request.md&title=">Request Feature</a>
   </p>
 </div>
 
