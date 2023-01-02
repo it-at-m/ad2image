@@ -2,6 +2,13 @@
 
 <!-- PROJECT SHIELDS -->
 
+[![Contributors][contributors-shield]][contributors-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![GitHub Workflow Status][github-workflow-status]][github-workflow-status-url]
+[![GitHub release (latest SemVer)][release-shield]][release-url]
+
 <!-- END OF PROJECT SHIELDS -->
 
 <!-- PROJECT LOGO -->
@@ -132,3 +139,18 @@ it@m - opensource@muenchen.de
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+[contributors-shield]: https://img.shields.io/github/contributors/it-at-m/ad2image.svg?style=for-the-badge
+[contributors-url]: https://github.com/it-at-m/ad2image/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/it-at-m/ad2image.svg?style=for-the-badge
+[forks-url]: https://github.com/it-at-m/ad2image/network/members
+[stars-shield]: https://img.shields.io/github/stars/it-at-m/ad2image.svg?style=for-the-badge
+[stars-url]: https://github.com/it-at-m/ad2image/stargazers
+[issues-shield]: https://img.shields.io/github/issues/it-at-m/ad2image.svg?style=for-the-badge
+[issues-url]: https://github.com/it-at-m/ad2image/issues
+[license-shield]: https://img.shields.io/github/license/it-at-m/ad2image.svg?style=for-the-badge
+[license-url]: https://github.com/it-at-m/ad2image/blob/main/LICENSE
+[github-workflow-status]: https://img.shields.io/github/actions/workflow/status/it-at-m/ad2image/build.yaml?style=for-the-badge
+[github-workflow-status-url]: https://github.com/it-at-m/ad2image/actions/workflows/build.yaml
+[release-shield]: https://img.shields.io/github/v/release/it-at-m/ad2image?sort=semver&style=for-the-badge
+[release-url]: https://github.com/it-at-m/ad2image/releases
