@@ -101,19 +101,21 @@ You can use the provided official Docker image [itatm/ad2image](https://hub.dock
 docker run -d -p 8080:8080 --name ad2image itatm/ad2image:1.0.1
 ```
 
-To connect to your Exchange/EWS environment, some environment variables must be set:
+To connect to your Exchange/EWS environment, some environment variables must be set, see [Configuration](#configuration) for a full list.
 
-| Variable                                         | Description                                                                                                                                                                                                                     | Default value                                     |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_URL`                | Connection URL for AD server, for example 'ldaps://ad.mydomain.com:636'.                                                                                                                                                        | -                                                 |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_DN`            | Bind User-DN for AD authentication                                                                                                                                                                                              | -                                                 |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_PASSWORD`           | Password for AD authentication                                                                                                                                                                                                  | -                                                 |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_BASE`   | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                                   | -                                                 |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_FILTER` | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` |
-| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_EWS_SERVICE_URL`   | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. 'https://computer.domain.contoso.com/EWS/Exchange.asmx'. | -                                                 |
-| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_USERNAME`          | Username for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 |
-| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_PASSWORD`          | Password for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 |
-| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_DOMAIN`            | Exchange/EWS domain, e.g. 'domain.contoso.com'                                                                                                                                                                                  | -                                                 |
+By default, ad2image uses a server-side cache (see [default_ehcache.xml](ad2image-app/src/main/resources/default_ehcache.xml)). You can provide your own `ehcache.xml` if you want to change the cache configuration (e.g. decrease the TTL).
+
+1. Create your custom `ehcache.xml` and mount it as a volume for the container, for example with Docker `--mount`:
+
+```
+docker run --mount type=bind,source=/home/user/my-ehcache.xml,target=/cacheconfig/my-ehcache.xml,readonly [...]
+```
+
+2. Set the container environment variable `SPRING_CACHE_JCACHE_CONFIG` to point to the custom `ehcache.xml`, for example:
+
+```
+SPRING_CACHE_JCACHE_CONFIG=file:/cacheconfig/my-ehcache.xml
+```
 
 ### Integrating in a existing Spring Boot application
 
@@ -127,19 +129,23 @@ ad2image can be integrated in a existing Spring Boot application by adding the `
 </dependency>
 ```
 
-To configure ad2image, the following configuration properties can be configured:
+To configure ad2image, add the corresponding `de.muenchen.oss.ad2image.*` properties to your `application.properties`/`application.yml`. For a full list of possible configuration properties see [Configuration](#configuration).
 
-| Configuration property                           | Description                                                                                                                                                                                                                     | Default value                                     |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `de.muenchen.oss.ad2image.ad.url`                | Connection URL for AD server, for example 'ldaps://ad.mydomain.com:636'.                                                                                                                                                        | -                                                 |
-| `de.muenchen.oss.ad2image.ad.user-dn`            | Bind User-DN for AD authentication                                                                                                                                                                                              | -                                                 |
-| `de.muenchen.oss.ad2image.ad.password`           | Password for AD authentication                                                                                                                                                                                                  | -                                                 |
-| `de.muenchen.oss.ad2image.ad.user-search-base`   | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                                   | -                                                 |
-| `de.muenchen.oss.ad2image.ad.user-search-filter` | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` |
-| `de.muenchen.oss.ad2image.ews.ews-service-url`   | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. 'https://computer.domain.contoso.com/EWS/Exchange.asmx'. | -                                                 |
-| `de.muenchen.oss.ad2image.ews.username`          | Username for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 |
-| `de.muenchen.oss.ad2image.ews.password`          | Password for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 |
-| `de.muenchen.oss.ad2image.ews.domain`            | Exchange/EWS domain, e.g. 'domain.contoso.com'                                                                                                                                                                                  | -                                                 |
+### Configuration
+
+ad2image can be configured via Spring environment abstraction.
+
+| Environment variable                             | System/Spring property                           | Description                                                                                                                                                                                                                     | Default value                                     | Required |
+| ------------------------------------------------ | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | -------- |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_URL`                | `de.muenchen.oss.ad2image.ad.url`                | Connection URL for AD server, for example 'ldaps://ad.mydomain.com:636'.                                                                                                                                                        | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_DN`            | `de.muenchen.oss.ad2image.ad.user-dn`            | Bind User-DN for AD authentication                                                                                                                                                                                              | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_PASSWORD`           | `de.muenchen.oss.ad2image.ad.password`           | Password for AD authentication                                                                                                                                                                                                  | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_BASE`   | `de.muenchen.oss.ad2image.ad.user-search-base`   | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                                   | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_FILTER` | `de.muenchen.oss.ad2image.ad.user-search-filter` | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_EWS_SERVICE_URL`   | `de.muenchen.oss.ad2image.ews.ews-service-url`   | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. `https://computer.domain.contoso.com/EWS/Exchange.asmx`. | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_USERNAME`          | `de.muenchen.oss.ad2image.ews.username`          | Username for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_PASSWORD`          | `de.muenchen.oss.ad2image.ews.password`          | Password for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_DOMAIN`            | `de.muenchen.oss.ad2image.ews.domain`            | Exchange/EWS domain, e.g. 'domain.contoso.com'                                                                                                                                                                                  | -                                                 | yes      |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
