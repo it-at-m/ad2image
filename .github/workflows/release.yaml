@@ -57,7 +57,7 @@ jobs:
         with:
           context: ./ad2image-app
           push: true
-          tags: itatm/ad2image:${{ env.RELEASE_VERSION }},itatm/ad2image:dev
+          tags: itatm/ad2image:${{ env.RELEASE_VERSION }},itatm/ad2image:latest
 
   github-release:
     name: Create Release
