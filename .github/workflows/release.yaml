@@ -28,7 +28,7 @@ jobs:
       - name: Remove SNAPSHOT
         if: github.event.inputs.snapshot-build == 'n'
         run: |
-          mvn versions:set --batch-mode -DremoveSnapshot -DprocessAllModules
+          mvn versions:set --batch-mode -DnewVersion=${{ env.RELEASE_VERSION }} -DprocessAllModules
       - name: Release Maven package
         uses: samuelmeuli/action-maven-publish@v1
         with:
