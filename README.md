@@ -117,6 +117,10 @@ docker run --mount type=bind,source=/home/user/my-ehcache.xml,target=/cacheconfi
 SPRING_CACHE_JCACHE_CONFIG=file:/cacheconfig/my-ehcache.xml
 ```
 
+### Deploying on Kubernetes using a Helm chart
+
+If you want to deploy ad2image on a Kubernetes cluster, you can use the provided Helm chart. See [ad2image-helm-chart](https://github.com/it-at-m/ad2image-helm-chart) for more information and documentation.
+
 ### Integrating in a existing Spring Boot application
 
 ad2image can be integrated in a existing Spring Boot application by adding the `ad2image-spring-boot-starter` dependency, e.g. for Maven:
