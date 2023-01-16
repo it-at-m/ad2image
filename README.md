@@ -98,7 +98,7 @@ Possible resolutions (`size`):
 You can use the provided official Docker image [itatm/ad2image](https://hub.docker.com/r/itatm/ad2image) to run **ad2image** as a standalone application.
 
 ```sh
-docker run -d -p 8080:8080 --name ad2image itatm/ad2image:1.0.1
+docker run -d -p 8080:8080 --name ad2image itatm/ad2image:1.0.4
 ```
 
 To connect to your Exchange/EWS environment, some environment variables must be set, see [Configuration](#configuration) for a full list.
@@ -129,7 +129,7 @@ ad2image can be integrated in a existing Spring Boot application by adding the `
 <dependency>
   <groupId>de.muenchen.oss.ad2image</groupId>
   <artifactId>ad2image-spring-boot-starter</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.4</version>
 </dependency>
 ```
 
