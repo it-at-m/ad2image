@@ -7,24 +7,6 @@
 [![GitHub Workflow Status][github-workflow-status]][github-workflow-status-url]
 [![GitHub release (latest SemVer)][release-shield]][release-url]
 
-<!-- END OF PROJECT SHIELDS -->
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="#">
-    <img src="images/logo.png" alt="Logo" height="200">
-  </a>
-
-<h3 align="center">ad2image</h3>
-
-  <p align="center">
-    <i>easy avatars powered by AD & Identicons</i>
-    <br /><a href="https://github.com/it-at-m/ad2image/issues/new?assignees=&labels=&template=bug_report.md&title=">Report Bug</a>
-    ·
-    <a href="https://github.com/it-at-m/ad2image/issues/new?assignees=&labels=&template=feature_request.md&title=">Request Feature</a>
-  </p>
-</div>
 
 ## About The Project
 
