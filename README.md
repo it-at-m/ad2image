@@ -148,7 +148,7 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 
 ## Contact
 
-it@m - opensource@muenchen.de
+it@M - opensource@muenchen.de
 
 
 [contributors-shield]: https://img.shields.io/github/contributors/it-at-m/ad2image.svg?style=for-the-badge
