@@ -8,7 +8,7 @@
 [![GitHub release (latest SemVer)][release-shield]][release-url]
 
 
-## About The Project
+# ad2image
 
 **ad2image** provides an easy-to-use, minimalistic HTTP API to retrieve user photos from an Active Directory / Microsoft Exchange environment. It also provides fallback photos using [avatar-generator](https://gitlab.talanlabs.com/gabriel-allaigre/avatar-generator-parent) if a user has no photo.
 
@@ -20,7 +20,7 @@ If you want to deploy **ad2image** as a standalone application, you can use the 
 **ad2image** was initially created as **mucatar** internally at it@M. It is used by many of our in-house projects to provide user photos for a richer user experience. For example, it can be very easily used as photo provider for [Vuetify's Avatar component](https://vuetifyjs.com/en/components/avatars/).
 
 
-### Built With
+## Built With
 
 This project is built with technologies we use in our projects:
 
