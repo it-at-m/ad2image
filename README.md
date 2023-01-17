@@ -150,8 +150,6 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 
 it@m - opensource@muenchen.de
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 [contributors-shield]: https://img.shields.io/github/contributors/it-at-m/ad2image.svg?style=for-the-badge
 [contributors-url]: https://github.com/it-at-m/ad2image/graphs/contributors
