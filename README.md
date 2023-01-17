@@ -1,5 +1,3 @@
-<div id="top"></div>
-
 <!-- PROJECT SHIELDS -->
 
 [![Contributors][contributors-shield]][contributors-url]
@@ -28,8 +26,6 @@
   </p>
 </div>
 
-<!-- ABOUT THE PROJECT -->
-
 ## About The Project
 
 **ad2image** provides an easy-to-use, minimalistic HTTP API to retrieve user photos from an Active Directory / Microsoft Exchange environment. It also provides fallback photos using [avatar-generator](https://gitlab.talanlabs.com/gabriel-allaigre/avatar-generator-parent) if a user has no photo.
@@ -41,7 +37,6 @@ If you want to deploy **ad2image** as a standalone application, you can use the 
 
 **ad2image** was initially created as **mucatar** internally at it@M. It is used by many of our in-house projects to provide user photos for a richer user experience. For example, it can be very easily used as photo provider for [Vuetify's Avatar component](https://vuetifyjs.com/en/components/avatars/).
 
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With
 
@@ -50,7 +45,6 @@ This project is built with technologies we use in our projects:
 - Java
 - Spring Boot
 
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Set up
 
@@ -60,7 +54,6 @@ mvn clean install
 
 For development, a Active Directory / Exchange environment is not needed. It is mocked by an embedded LDAP server and WireMock (for the EWS API).
 
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Documentation
 
@@ -151,10 +144,6 @@ ad2image can be configured via Spring environment abstraction.
 | `DE_MUENCHEN_OSS_AD2IMAGE_EWS_PASSWORD`          | `de.muenchen.oss.ad2image.ews.password`          | Password for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_EWS_DOMAIN`            | `de.muenchen.oss.ad2image.ews.domain`            | Exchange/EWS domain, e.g. 'domain.contoso.com'                                                                                                                                                                                  | -                                                 | yes      |
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
-
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -169,23 +158,15 @@ Don't forget to give the project a star! Thanks again!
 5. Push to the Branch (`git push origin feature/AmazingFeature`)
 6. Open a Pull Request
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- LICENSE -->
 
 ## License
 
 Distributed under the MIT License. See `LICENSE` file for more information.
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- CONTACT -->
 
 ## Contact
 
 it@m - opensource@muenchen.de
-
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
