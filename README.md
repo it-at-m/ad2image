@@ -37,7 +37,7 @@
 Behind the curtains, by default a 64x64 pixel thumbnail photo is retrieved from Active Directory (Attribute `thumbnailPhoto`). Higher resolution photos can also be used, those will be fetched internally by using the [Exchange EWS REST API](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/how-to-get-user-photos-by-using-ews-in-exchange#get-a-mailbox-user-photo-by-using-rest).
 
 **ad2image** can be integrated in your Spring Boot application by using the provided starter `ad2image-spring-boot-starter`.
-If you want to deploy **ad2image** as a standalone application, you can use the provided container image.
+If you want to deploy **ad2image** as a standalone application, you can use the [provided container image](#running-as-a-container-standalone) or [Helm chart][helm-chart-github].
 
 **ad2image** was initially created as **mucatar** internally at it@M. It is used by many of our in-house projects to provide user photos for a richer user experience. For example, it can be very easily used as photo provider for [Vuetify's Avatar component](https://vuetifyjs.com/en/components/avatars/).
 
@@ -119,7 +119,7 @@ SPRING_CACHE_JCACHE_CONFIG=file:/cacheconfig/my-ehcache.xml
 
 ### Deploying on Kubernetes using a Helm chart
 
-If you want to deploy ad2image on a Kubernetes cluster, you can use the provided Helm chart. See [ad2image-helm-chart](https://github.com/it-at-m/ad2image-helm-chart) for more information and documentation.
+If you want to deploy ad2image on a Kubernetes cluster, you can use the provided Helm chart. See [ad2image-helm-chart][helm-chart-github] for more information and documentation.
 
 ### Integrating in a existing Spring Boot application
 
@@ -204,3 +204,4 @@ it@m - opensource@muenchen.de
 [github-workflow-status-url]: https://github.com/it-at-m/ad2image/actions/workflows/build.yaml
 [release-shield]: https://img.shields.io/github/v/release/it-at-m/ad2image?sort=semver&style=for-the-badge
 [release-url]: https://github.com/it-at-m/ad2image/releases
+[helm-chart-github]: https://github.com/it-at-m/ad2image-helm-chart
