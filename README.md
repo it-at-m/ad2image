@@ -143,7 +143,7 @@ Don't forget to give the project a star! Thanks again!
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` file for more information.
+Distributed under the MIT License. See [LICENSE](LICENSE) file for more information.
 
 
 ## Contact
