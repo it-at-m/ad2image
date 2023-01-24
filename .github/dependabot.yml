@@ -9,6 +9,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    labels:
+      - "github-actions"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
