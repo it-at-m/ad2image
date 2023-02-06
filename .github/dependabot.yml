@@ -10,7 +10,7 @@ updates:
     schedule:
       interval: "weekly"
     labels:
-      - "github-actions"
+      - "github_actions"
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
