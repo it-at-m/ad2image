@@ -50,7 +50,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_KEY }}
 
       - name: Build and push app
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./ad2image-app
           push: true
