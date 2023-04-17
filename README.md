@@ -94,7 +94,7 @@ SPRING_CACHE_JCACHE_CONFIG=file:/cacheconfig/my-ehcache.xml
 
 ### Deploying on Kubernetes using a Helm chart
 
-If you want to deploy ad2image on a Kubernetes cluster, you can use the provided Helm chart. See [ad2image-helm-chart][helm-chart-github] for more information and documentation.
+If you want to deploy ad2image on a Kubernetes cluster, you can use the [provided Helm chart][helm-chart-github].
 
 ### Integrating in a existing Spring Boot application
 
@@ -165,4 +165,4 @@ it@M - opensource@muenchen.de
 [github-workflow-status-url]: https://github.com/it-at-m/ad2image/actions/workflows/build.yaml
 [release-shield]: https://img.shields.io/github/v/release/it-at-m/ad2image?sort=semver&style=for-the-badge
 [release-url]: https://github.com/it-at-m/ad2image/releases
-[helm-chart-github]: https://github.com/it-at-m/ad2image-helm-chart
+[helm-chart-github]: https://artifacthub.io/packages/helm/it-at-m/ad2image
