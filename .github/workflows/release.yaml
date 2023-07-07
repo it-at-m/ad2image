@@ -1,16 +1,22 @@
 name: release
 
-# Run workflow on commits to the `main` branch
 on:
   workflow_dispatch:
     inputs:
-      snapshot-build:
-        description: "Snapshot build (y/n)?"
+      branch:
+        description: "Branch to release from ?"
         required: true
-        default: "y"
+        default: "main"
+      release-version:
+        description: "Release version ?"
+        required: true
       release-tag:
-        description: "Release Tag (only if not snapshot)"
-        required: false
+        description: "Release tag ?"
+        required: true
+      development-version:
+        description: "Next Development version ?"
+        required: true
+
 
 jobs:
   release:
@@ -18,24 +24,34 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Setup git user
+        uses: fregante/setup-git-user@v2
 
-      - name: Install Java and Maven
+      - name: Set up JDK 17 and OSSRH auth / GPG signing
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: "temurin"
+          cache: "maven"
+          server-id: "ossrh"
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.gpg_private_key }}
+          gpg-passphrase: SIGN_KEY_PASS
 
-      - name: Remove SNAPSHOT
-        if: github.event.inputs.snapshot-build == 'n'
-        run: |
-          mvn versions:set --batch-mode -DnewVersion=${{ github.event.inputs.release-tag }} -DprocessAllModules
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          gpg_private_key: ${{ secrets.gpg_private_key }}
-          gpg_passphrase: ${{ secrets.gpg_passphrase }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+      - name: Perform maven release
+        run: >
+          mvn -B -ntp release:prepare release:perform
+          -DreleaseVersion=${{ github.event.inputs.release-version }} 
+          -DdevelopmentVersion=${{ github.event.inputs.development-version }} 
+          -Dtag=${{ github.event.inputs.release-tag }} 
+          -Darguments="-DskipTests"
+        env:
+          SIGN_KEY_PASS: ${{ secrets.gpg_passphrase }}
+          OSSRH_USERNAME: ${{ secrets.nexus_username }}
+          OSSRH_PASSWORD: ${{ secrets.nexus_password }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -49,31 +65,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_KEY }}
 
-      - name: Build and push app
+      - name: Build and push image
         uses: docker/build-push-action@v4
         with:
           context: ./ad2image-app
           push: true
           tags: itatm/ad2image:${{ github.event.inputs.release-tag }},itatm/ad2image:latest
 
-  github-release:
-    name: Create Release
-    if: github.event.inputs.snapshot-build == 'n'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Create tag
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/${{ github.event.inputs.release-tag }}',
-              sha: context.sha
-            })
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
@@ -82,6 +80,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+          
       - name: Update Docker Hub Description
         uses: peter-evans/dockerhub-description@v3
         with:
