@@ -13,12 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Advance Security Policy as Code
-        uses: advanced-security/policy-as-code@v2.3
+        uses: advanced-security/policy-as-code@v2.3.4
         with:
-          policy: GeekMasher/security-queries
-          policy-path: policies/default.yml
+          policy: it-at-m/policy-as-code
+          policy-path: default.yml
           token: ${{ secrets.GITHUB_TOKEN }}
-          argvs: "--disable-dependabot --disable-secret-scanning --disable-code-scanning"
+          argvs: "--disable-dependabot"
 
   build-maven:
     needs: compliance
