@@ -296,8 +296,8 @@
 
 	<scm>
 		<url>https://github.com/it-at-m/ad2image</url>
-		<connection>scm:git:git@github.com:it-at-m/ad2image.git</connection>
-		<developerConnection>scm:git:git@github.com:it-at-m/ad2image.git</developerConnection>
+		<connection>scm:git:https://github.com/it-at-m/ad2image.git</connection>
+		<developerConnection>scm:git:https://github.com/it-at-m/ad2image.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 </project>
