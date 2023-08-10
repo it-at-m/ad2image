@@ -7,7 +7,6 @@
 [![GitHub Workflow Status][github-workflow-status]][github-workflow-status-url]
 [![GitHub release (latest SemVer)][release-shield]][release-url]
 
-
 # ad2image
 
 **ad2image** provides an easy-to-use, minimalistic HTTP API to retrieve user photos from an Active Directory / Microsoft Exchange environment. It also provides fallback photos using [avatar-generator](https://gitlab.talanlabs.com/gabriel-allaigre/avatar-generator-parent) if a user has no photo.
@@ -19,14 +18,12 @@ If you want to deploy **ad2image** as a standalone application, you can use the 
 
 **ad2image** was initially created as **mucatar** internally at it@M. It is used by many of our in-house projects to provide user photos for a richer user experience. For example, it can be very easily used as photo provider for [Vuetify's Avatar component](https://vuetifyjs.com/en/components/avatars/).
 
-
 ## Built With
 
 This project is built with technologies we use in our projects:
 
 - Java
 - Spring Boot
-
 
 ## Set up
 
@@ -35,7 +32,6 @@ mvn clean install
 ```
 
 For development, a Active Directory / Exchange environment is not needed. It is mocked by an embedded LDAP server and WireMock (for the EWS API).
-
 
 ## Documentation
 
@@ -140,16 +136,15 @@ Don't forget to give the project a star! Thanks again!
 5. Push to the Branch (`git push origin feature/AmazingFeature`)
 6. Open a Pull Request
 
+We use [itm-java-codeformat](https://github.com/it-at-m/itm-java-codeformat), so please make sure to apply the correct code format for your contributions.
 
 ## License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) file for more information.
 
-
 ## Contact
 
 it@M - opensource@muenchen.de
-
 
 [contributors-shield]: https://img.shields.io/github/contributors/it-at-m/ad2image.svg?style=for-the-badge
 [contributors-url]: https://github.com/it-at-m/ad2image/graphs/contributors
