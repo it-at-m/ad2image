@@ -47,16 +47,18 @@ import de.muenchen.oss.ad2image.starter.core.ImageSize;
  * @author michael.prankl
  *
  */
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-        "de.muenchen.oss.ad2image.ews.username=dummyUser",
-        "de.muenchen.oss.ad2image.ews.password=dummyPassword",
-        "de.muenchen.oss.ad2image.ews.domain=dummy.domain",
-        "de.muenchen.oss.ad2image.ews.ews-service-url=http://localhost/Exchange.asmx",
-        "de.muenchen.oss.ad2image.ad.url=ldap://localhost:389",
-        "de.muenchen.oss.ad2image.ad.user-dn=CN=user,DC=dummy,DC=domain",
-        "de.muenchen.oss.ad2image.ad.password=dummyPassword",
-        "de.muenchen.oss.ad2image.ad.user-search-base=DC=dummy,DC=domain"
-})
+@SpringBootTest(
+        webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+                "de.muenchen.oss.ad2image.ews.username=dummyUser",
+                "de.muenchen.oss.ad2image.ews.password=dummyPassword",
+                "de.muenchen.oss.ad2image.ews.domain=dummy.domain",
+                "de.muenchen.oss.ad2image.ews.ews-service-url=http://localhost/Exchange.asmx",
+                "de.muenchen.oss.ad2image.ad.url=ldap://localhost:389",
+                "de.muenchen.oss.ad2image.ad.user-dn=CN=user,DC=dummy,DC=domain",
+                "de.muenchen.oss.ad2image.ad.password=dummyPassword",
+                "de.muenchen.oss.ad2image.ad.user-search-base=DC=dummy,DC=domain"
+        }
+)
 class AvatarApplicationTest {
 
     @MockBean(name = "ad2ImageLdapTemplate")

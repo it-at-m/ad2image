@@ -1,3 +1,7 @@
 {
-  "recommendations": ["vscjava.vscode-java-pack", "vmware.vscode-boot-dev-pack"]
+  "recommendations": [
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-boot-dev-pack",
+    "editorconfig.editorconfig"
+  ]
 }
