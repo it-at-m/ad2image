@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Advance Security Policy as Code
         uses: advanced-security/policy-as-code@v2.5.0
         with:
@@ -24,7 +24,7 @@ jobs:
     needs: compliance
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4
       - name: Set up JDK 17
