@@ -29,8 +29,16 @@ package de.muenchen.oss.ad2image.starter.core;
  *      SizeRequested</a>
  */
 public enum ImageSize {
-    HR64("HR64x64", 64), HR96("HR96x96", 96), HR120("HR120x120", 120), HR240("HR240x240", 240), HR360("HR360x360", 360), HR432("HR432x432",
-            432), HR504("HR504x504", 504), HR648("HR648x648", 648);
+    HR64("HR64x64", 64),
+    HR96("HR96x96", 96),
+    HR120("HR120x120", 120),
+    HR240("HR240x240", 240),
+    HR360("HR360x360", 360),
+    HR432(
+            "HR432x432",
+            432),
+    HR504("HR504x504", 504),
+    HR648("HR648x648", 648);
 
     private final String sizeRequestedValue;
     private final int sizePixels;
