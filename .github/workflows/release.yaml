@@ -74,7 +74,7 @@ jobs:
 
       - name: Perform maven release
         run: >
-          mvn -B -ntp release:perform -Darguments="-DskipTests"
+          mvn -B -ntp deploy -DskipTests -Prelease
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.gpg_passphrase }}
           CENTRAL_USERNAME: ${{ secrets.sonatype_username }}
