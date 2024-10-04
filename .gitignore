@@ -200,3 +200,5 @@ buildNumber.properties
 .idea/
 *.iml
 .mvn/
+
+.pmd
