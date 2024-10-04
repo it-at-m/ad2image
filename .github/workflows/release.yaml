@@ -19,13 +19,44 @@ on:
 
 
 jobs:
-  release:
+  prepare-release:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
+
+      - name: Setup git user
+        uses: fregante/setup-git-user@v2
+
+      - name: Install Java and Maven
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Prepare maven release
+        run: >
+          mvn -B -ntp release:prepare 
+          -DreleaseVersion=${{ github.event.inputs.release-version }} 
+          -DdevelopmentVersion=${{ github.event.inputs.development-version }} 
+          -Dtag=${{ github.event.inputs.release-tag }} 
+          -Darguments="-DskipTests"
+          
+  perform-release:
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+    steps:
+      - name: checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.release-tag }}
+
       - name: Setup git user
         uses: fregante/setup-git-user@v2
 
@@ -35,23 +66,19 @@ jobs:
           java-version: 17
           distribution: "temurin"
           cache: "maven"
-          server-id: "ossrh"
-          server-username: OSSRH_USERNAME
-          server-password: OSSRH_PASSWORD
+          server-id: "central"
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.gpg_private_key }}
-          gpg-passphrase: SIGN_KEY_PASS
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Perform maven release
         run: >
-          mvn -B -ntp release:prepare release:perform
-          -DreleaseVersion=${{ github.event.inputs.release-version }} 
-          -DdevelopmentVersion=${{ github.event.inputs.development-version }} 
-          -Dtag=${{ github.event.inputs.release-tag }} 
-          -Darguments="-DskipTests"
+          mvn -B -ntp release:perform -Darguments="-DskipTests"
         env:
-          SIGN_KEY_PASS: ${{ secrets.gpg_passphrase }}
-          OSSRH_USERNAME: ${{ secrets.nexus_username }}
-          OSSRH_PASSWORD: ${{ secrets.nexus_password }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.gpg_passphrase }}
+          CENTRAL_USERNAME: ${{ secrets.sonatype_username }}
+          CENTRAL_PASSWORD: ${{ secrets.sonatype_password }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -59,18 +86,29 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to DockerHub
+      - name: Login to ghcr.io
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_KEY }}
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=${{inputs.release-version}}
+            type=sha
 
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
           context: ./ad2image-app
           push: true
-          tags: itatm/ad2image:${{ github.event.inputs.release-tag }},itatm/ad2image:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Create GitHub Release
         id: create_release
@@ -80,12 +118,3 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-          
-      - name: Update Docker Hub Description
-        uses: peter-evans/dockerhub-description@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_KEY }}
-          repository: itatm/ad2image
-          readme-filepath: ./IMAGE_README.md
-          short-description: ${{ github.event.repository.description }}
