@@ -2,7 +2,6 @@ name: build and test
 
 on:
   push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -46,6 +45,6 @@ jobs:
         with:
           context: ./ad2image-app
           # dont push image on PRs
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
