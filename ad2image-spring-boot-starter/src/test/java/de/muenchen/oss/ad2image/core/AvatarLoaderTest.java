@@ -24,6 +24,7 @@ package de.muenchen.oss.ad2image.core;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.unauthorized;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,8 +41,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -78,7 +81,24 @@ class AvatarLoaderTest {
 
     @Test
     void bigger_size_from_ews() throws IOException {
-        wm1.stubFor(get(urlPathEqualTo("/s/GetUserPhoto")).willReturn(ok().withBodyFile("account_dummy.png")));
+        // stub Non-Preemptive authentication flow (default of Apache HTTP Client) - first request is without auth
+        // @formatter:off
+        wm1.stubFor(get(urlPathEqualTo("/s/GetUserPhoto"))
+                .inScenario("Non-Preemptive Auth")
+                .whenScenarioStateIs(Scenario.STARTED)
+                .willReturn(
+                        unauthorized()
+                            .withHeader("WWW-Authenticate", "Negotiate")
+                            .withHeader("WWW-Authenticate", "NTLM")
+                            )
+                .willSetStateTo("Negotiated"));
+        wm1.stubFor(get(urlPathEqualTo("/s/GetUserPhoto"))
+                .inScenario("Non-Preemptive Auth")
+                .whenScenarioStateIs("Negotiated")
+                .withHeader("Authorization", WireMock.containing("NTLM"))
+                .willReturn(
+                        ok().withBodyFile("account_dummy.png")));
+        // @formatter:on
         String uid = "maxi.mustermann";
         byte[] loadAvatar = sut.loadAvatar(uid, "identicon", ImageSize.HR648);
         assertThat(loadAvatar).isNotEmpty();
@@ -117,9 +137,9 @@ class AvatarLoaderTest {
         adConf.setUserSearchBase("ou=Users,dc=example,dc=com");
         ExchangeConfigurationProperties exchangeConf = new ExchangeConfigurationProperties();
         exchangeConf.setEwsServiceUrl(wm1.getRuntimeInfo().getHttpBaseUrl());
-        exchangeConf.setDomain("example.com");
-        exchangeConf.setUsername("a");
-        exchangeConf.setPassword("b");
+        exchangeConf.setDomain("localhost");
+        exchangeConf.setUsername("aDummyUsername");
+        exchangeConf.setPassword("aDummyPassword");
         LdapContextSource source = new LdapContextSource();
         source.setUrl(adConf.getUrl());
         source.setUserDn(adConf.getUserDn());
