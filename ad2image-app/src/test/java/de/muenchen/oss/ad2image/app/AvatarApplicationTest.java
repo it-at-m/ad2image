@@ -83,13 +83,11 @@ class AvatarApplicationTest {
         Mockito.when(loader.loadAvatar(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                 .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
 
-        CloseableHttpResponse response = httpClient.execute(new HttpGet("http://localhost:" + port + "/avatar?uid=dummy.user"));
-        Assertions.assertThat(response.getCode()).isEqualTo(200);
-        //        ResponseEntity<String> firstRequest = testRestTemplate.getForEntity("/avatar?uid=dummy.user", String.class);
-        //        Assertions.assertThat(firstRequest.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        CloseableHttpResponse firstResponse = httpClient.execute(new HttpGet("http://localhost:" + port + "/avatar?uid=dummy.user"));
+        Assertions.assertThat(firstResponse.getCode()).isEqualTo(200);
 
-        //        ResponseEntity<String> secondRequest = testRestTemplate.getForEntity("/avatar?uid=dummy.user", String.class);
-        //        Assertions.assertThat(secondRequest.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+        CloseableHttpResponse secondResponse = httpClient.execute(new HttpGet("http://localhost:" + port + "/avatar?uid=dummy.user"));
+        Assertions.assertThat(secondResponse.getCode()).isEqualTo(200);
 
         // second request should get cached - so just 1 call to loader
         Mockito.verify(loader, times(1)).loadAvatar("dummy.user", "identicon", ImageSize.HR64);
