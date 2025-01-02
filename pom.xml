@@ -34,7 +34,7 @@
 	<groupId>de.muenchen.oss.ad2image</groupId>
 	<artifactId>ad2image-parent</artifactId>
 	<name>ad2image :: parent</name>
-	<version>1.1.0</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<url>https://github.com/it-at-m/ad2image</url>
 
@@ -317,6 +317,6 @@
 		<url>https://github.com/it-at-m/ad2image</url>
 		<connection>scm:git:https://github.com/it-at-m/ad2image.git</connection>
 		<developerConnection>scm:git:https://github.com/it-at-m/ad2image.git</developerConnection>
-		<tag>1.1.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 </project>
