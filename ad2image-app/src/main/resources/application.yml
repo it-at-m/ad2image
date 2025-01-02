@@ -7,6 +7,10 @@ spring:
   cache:
     jcache:
       config: classpath:default_ehcache.xml
+  autoconfigure:
+    exclude: 
+      - org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration
 
 logging:
   level:

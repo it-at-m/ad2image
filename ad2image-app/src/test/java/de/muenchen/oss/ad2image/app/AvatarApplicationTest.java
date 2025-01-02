@@ -27,18 +27,20 @@ import static org.mockito.Mockito.times;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
 import de.muenchen.oss.ad2image.starter.core.ImageSize;
@@ -61,23 +63,31 @@ import de.muenchen.oss.ad2image.starter.core.ImageSize;
 )
 class AvatarApplicationTest {
 
-    @MockBean(name = "ad2ImageLdapTemplate")
+    @MockitoBean(name = "ad2ImageLdapTemplate")
     private LdapTemplate ldapTemplate;
 
-    @MockBean
+    @MockitoBean
     private AvatarLoader loader;
 
-    @Autowired
+    // just a needed hack to disable (Test)RestTemplate auto-configuration of @SpringBootTest
+    @MockitoBean
     private TestRestTemplate testRestTemplate;
+
+    @LocalServerPort
+    private Integer port;
+
+    private CloseableHttpClient httpClient = HttpClients.createDefault();
 
     @Test
     void avatar_request_ok() throws IOException {
         Mockito.when(loader.loadAvatar(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                 .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
-        ResponseEntity<String> firstRequest = testRestTemplate.getForEntity("/avatar?uid=dummy.user", String.class);
-        Assertions.assertThat(firstRequest.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
-        ResponseEntity<String> secondRequest = testRestTemplate.getForEntity("/avatar?uid=dummy.user", String.class);
-        Assertions.assertThat(secondRequest.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
+
+        CloseableHttpResponse firstResponse = httpClient.execute(new HttpGet("http://localhost:" + port + "/avatar?uid=dummy.user"));
+        Assertions.assertThat(firstResponse.getCode()).isEqualTo(200);
+
+        CloseableHttpResponse secondResponse = httpClient.execute(new HttpGet("http://localhost:" + port + "/avatar?uid=dummy.user"));
+        Assertions.assertThat(secondResponse.getCode()).isEqualTo(200);
 
         // second request should get cached - so just 1 call to loader
         Mockito.verify(loader, times(1)).loadAvatar("dummy.user", "identicon", ImageSize.HR64);
