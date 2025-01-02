@@ -64,6 +64,8 @@ Possible resolutions (`size`):
 - `504`
 - `648`
 
+OpenAPI v3 documentation is also provided and can be retrieved via Swagger UI (`<your-instance>/swagger-ui/index.html`).
+
 ### Running as a container (standalone)
 
 You can use the provided official Docker image [ghrc.io/it-at-m/ad2image](https://github.com/it-at-m/ad2image/pkgs/container/ad2image) to run **ad2image** as a standalone application.
