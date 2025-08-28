@@ -68,10 +68,10 @@ OpenAPI v3 documentation is also provided and can be retrieved via Swagger UI (`
 
 ### Running as a container (standalone)
 
-You can use the provided official Docker image [ghrc.io/it-at-m/ad2image](https://github.com/it-at-m/ad2image/pkgs/container/ad2image) to run **ad2image** as a standalone application.
+You can use the provided official Docker image [ghcr.io/it-at-m/ad2image](https://github.com/it-at-m/ad2image/pkgs/container/ad2image) to run **ad2image** as a standalone application.
 
 ```sh
-docker run -d -p 8080:8080 --name ad2image ghrc.io/it-at-m/ad2image:1.0.7
+docker run -d -p 8080:8080 --name ad2image ghcr.io/it-at-m/ad2image:1.0.7
 ```
 
 To connect to your Exchange/EWS environment, some environment variables must be set, see [Configuration](#configuration) for a full list.
