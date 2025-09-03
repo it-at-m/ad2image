@@ -1,6 +1,9 @@
 # https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes#configuring-automatically-generated-release-notes
 changelog:
   categories:
+    - title: 🛠 Breaking Changes
+      labels:
+        - breaking-change
     - title: 🎉 New Features
       labels:
         - enhancement

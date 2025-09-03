@@ -49,6 +49,11 @@ public class Ad2ImageConfigurationProperties {
      */
     private boolean enabled = true;
 
+    /**
+     * default mode
+     */
+    private Mode defaultMode = Mode.M_FALLBACK_GENERIC;
+
     public AdConfigurationProperties getAd() {
         return ad;
     }
@@ -73,4 +78,11 @@ public class Ad2ImageConfigurationProperties {
         this.enabled = enabled;
     }
 
+    public Mode getDefaultMode() {
+        return defaultMode;
+    }
+
+    public void setDefaultMode(Mode defaultMode) {
+        this.defaultMode = defaultMode;
+    }
 }

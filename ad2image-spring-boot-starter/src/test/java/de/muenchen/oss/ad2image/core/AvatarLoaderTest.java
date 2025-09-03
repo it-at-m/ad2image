@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import de.muenchen.oss.ad2image.starter.core.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,11 +53,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 
-import de.muenchen.oss.ad2image.starter.core.AdConfigurationProperties;
-import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
-import de.muenchen.oss.ad2image.starter.core.ExchangeConfigurationProperties;
-import de.muenchen.oss.ad2image.starter.core.ImageSize;
-
 /**
  * @author michael.prankl
  *
@@ -74,7 +70,7 @@ class AvatarLoaderTest {
     @Test
     void default_size_from_ad() throws IOException {
         String uid = "maxi.mustermann";
-        byte[] loadAvatar = sut.loadAvatar(uid, "identicon", ImageSize.getAdDefaultImageSize());
+        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_IDENTICON, ImageSize.getAdDefaultImageSize());
         assertThat(loadAvatar).isNotEmpty();
         Files.write(new File("target/" + uid + "_64.jpg").toPath(), loadAvatar);
     }
@@ -100,7 +96,7 @@ class AvatarLoaderTest {
                         ok().withBodyFile("account_dummy.png")));
         // @formatter:on
         String uid = "maxi.mustermann";
-        byte[] loadAvatar = sut.loadAvatar(uid, "identicon", ImageSize.HR648);
+        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_IDENTICON, ImageSize.HR648);
         assertThat(loadAvatar).isNotEmpty();
         Files.write(new File("target/" + uid + "_648.jpg").toPath(), loadAvatar);
     }
@@ -108,7 +104,7 @@ class AvatarLoaderTest {
     @Test
     void no_user_fallbackIdenticon() throws IOException {
         String uid = "dengibtsned.imad";
-        byte[] loadAvatar = sut.loadAvatar(uid, "fallbackIdenticon", ImageSize.HR648);
+        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_FALLBACK_GENERIC, ImageSize.HR648);
         assertThat(loadAvatar).isNotEmpty();
         Files.write(new File("target/" + uid + "_648.png").toPath(), loadAvatar);
     }
@@ -116,7 +112,7 @@ class AvatarLoaderTest {
     @Test
     void user_without_picture_fallback() throws IOException {
         String uid = "nophoto.user";
-        byte[] loadAvatar = sut.loadAvatar(uid, "fallbackIdenticon", ImageSize.HR648);
+        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_FALLBACK_GENERIC, ImageSize.HR648);
         assertThat(loadAvatar).isNotEmpty();
         Files.write(new File("target/" + uid + "_648.png").toPath(), loadAvatar);
     }
@@ -124,7 +120,7 @@ class AvatarLoaderTest {
     @Test
     void user_without_picture_no_fallback() throws IOException {
         String uid = "nophoto.user";
-        byte[] loadAvatar = sut.loadAvatar(uid, "404", ImageSize.HR648);
+        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_404, ImageSize.HR648);
         assertThat(loadAvatar).isNull();
     }
 

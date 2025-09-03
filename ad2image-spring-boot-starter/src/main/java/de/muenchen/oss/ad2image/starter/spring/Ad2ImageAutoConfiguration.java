@@ -65,8 +65,8 @@ public class Ad2ImageAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    AvatarController avatarController(AvatarService service) {
-        return new AvatarController(service);
+    AvatarController avatarController(AvatarService service, Ad2ImageConfigurationProperties ad2ImageProps) {
+        return new AvatarController(service, ad2ImageProps);
     }
 
     @Bean("ad2ImageLdapTemplate")

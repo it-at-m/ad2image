@@ -20,25 +20,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package de.muenchen.oss.ad2image.starter.spring;
+package de.muenchen.oss.ad2image.starter.core;
 
-import de.muenchen.oss.ad2image.starter.core.Mode;
-import org.springframework.cache.annotation.Cacheable;
+public enum Mode {
+    M_404("404"),
+    M_IDENTICON("identicon"),
+    M_FALLBACK_IDENTICON("fallbackIdenticon"),
+    M_GITHUB("github"),
+    M_FALLBACK_GITHUB("fallbackGithub"),
+    M_GENERIC("generic"),
+    M_FALLBACK_GENERIC("fallbackGeneric"),
+    M_TRIANGLE("triangle"),
+    M_FALLBACK_TRIANGLE("fallbackTriangle"),
+    M_SQUARE("square"),
+    M_FALLBACK_SQUARE("fallbackSquare");
 
-import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
-import de.muenchen.oss.ad2image.starter.core.ImageSize;
+    private final String parameterValue;
 
-public class AvatarService {
-
-    private final AvatarLoader avatarLoader;
-
-    public AvatarService(AvatarLoader avatarLoader) {
-        this.avatarLoader = avatarLoader;
+    Mode(String parameterValue) {
+        this.parameterValue = parameterValue;
     }
 
-    @Cacheable("avatars")
-    public byte[] get(String uid, Mode mode, ImageSize size) {
-        return avatarLoader.loadAvatar(uid, mode, size);
+    public String getParameterValue() {
+        return parameterValue;
     }
-
 }
