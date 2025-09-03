@@ -37,15 +37,15 @@ For development, a Active Directory / Exchange environment is not needed. It is 
 
 ### Using the API
 
-`GET /avatar?uid=john.doe[&m=identicon|404|fallbackIdenticon][&size=64]`
+`GET /avatar?uid=john.doe[&m=identicon|404|fallbackIdenticon|...][&size=64]`
 
 Possible modes (`m`):
 
 - `404`: 404 Response, if the user has no photo stored in AD/Exchange
-- `identicon`: **default** - renders an [Identicon](https://en.wikipedia.org/wiki/Identicon), if the user has no photo stored in AD/Exchange
+- `identicon`: renders an [Identicon](https://en.wikipedia.org/wiki/Identicon), if the user has no photo stored in AD/Exchange
 - `fallbackIdenticon`: identical to `identicon`, but also responds with an Identicon if the user itself does not exist in AD/Exchange
 - `generic`: renders an [generic placeholder icon](ad2image-spring-boot-starter/src/main/resources/account_64.png), if the user has no photo stored in AD/Exchange
-- `fallbackGeneric`: identical to `generic`, but also responds with an generic placeholder icon if the user itself does not exist in AD/Exchange
+- `fallbackGeneric`: **default** - identical to `generic`, but also responds with an generic placeholder icon if the user itself does not exist in AD/Exchange
 - `triangle`: renders an [randomly generated Avatar based on triangles](https://raw.githubusercontent.com/gabrie-allaigre/avatar-generator/master/doc/triangle1.png), if the user has no photo stored in AD/Exchange
 - `fallbackTriangle`: identical to `triangle`, but also responds correspondingly if the user itself does not exist in AD/Exchange
 - `square`: renders an [randomly generated Avatar based on squares](https://raw.githubusercontent.com/gabrie-allaigre/avatar-generator/master/doc/square1.png), if the user has no photo stored in AD/Exchange
@@ -71,7 +71,7 @@ OpenAPI v3 documentation is also provided and can be retrieved via Swagger UI (`
 You can use the provided official Docker image [ghcr.io/it-at-m/ad2image](https://github.com/it-at-m/ad2image/pkgs/container/ad2image) to run **ad2image** as a standalone application.
 
 ```sh
-docker run -d -p 8080:8080 --name ad2image ghcr.io/it-at-m/ad2image:1.0.7
+docker run -d -p 8080:8080 --name ad2image ghcr.io/it-at-m/ad2image:1.1.1
 ```
 
 To connect to your Exchange/EWS environment, some environment variables must be set, see [Configuration](#configuration) for a full list.
@@ -102,7 +102,7 @@ ad2image can be integrated in a existing Spring Boot application by adding the `
 <dependency>
   <groupId>de.muenchen.oss.ad2image</groupId>
   <artifactId>ad2image-spring-boot-starter</artifactId>
-  <version>1.0.4</version>
+  <version>1.1.1</version><!-- see GitHub Release for latest version -->
 </dependency>
 ```
 
@@ -113,12 +113,13 @@ To configure ad2image, add the corresponding `de.muenchen.oss.ad2image.*` proper
 ad2image can be configured via Spring environment abstraction.
 
 | Environment variable                             | System/Spring property                           | Description                                                                                                                                                                                                                     | Default value                                     | Required |
-| ------------------------------------------------ | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | -------- |
+|--------------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|----------|
+| `DE_MUENCHEN_OSS_AD2IMAGE_DEFAULT_MODE`          | `de.muenchen.oss.ad2image.default-mode`          | Default mode (`m`) if user provides none.                                                                                                                                                                                       | `"M_FALLBACK_GENERIC"` (`fallbackGeneric`)        | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_AD_URL`                | `de.muenchen.oss.ad2image.ad.url`                | Connection URL for AD server, for example 'ldaps://ad.mydomain.com:636'.                                                                                                                                                        | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_DN`            | `de.muenchen.oss.ad2image.ad.user-dn`            | Bind User-DN for AD authentication                                                                                                                                                                                              | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_AD_PASSWORD`           | `de.muenchen.oss.ad2image.ad.password`           | Password for AD authentication                                                                                                                                                                                                  | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_BASE`   | `de.muenchen.oss.ad2image.ad.user-search-base`   | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                                   | -                                                 | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_FILTER` | `de.muenchen.oss.ad2image.ad.user-search-filter` | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_FILTER` | `de.muenchen.oss.ad2image.ad.user-search-filter` | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_EWS_EWS_SERVICE_URL`   | `de.muenchen.oss.ad2image.ews.ews-service-url`   | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. `https://computer.domain.contoso.com/EWS/Exchange.asmx`. | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_EWS_USERNAME`          | `de.muenchen.oss.ad2image.ews.username`          | Username for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_EWS_PASSWORD`          | `de.muenchen.oss.ad2image.ews.password`          | Password for EWS [NTLM authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#ntlm-authentication).                                               | -                                                 | yes      |

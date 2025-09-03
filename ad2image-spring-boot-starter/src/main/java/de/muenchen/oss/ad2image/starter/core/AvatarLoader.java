@@ -57,18 +57,6 @@ import com.talanlabs.avatargenerator.TriangleAvatar;
 
 public class AvatarLoader {
 
-    public static final String MODE_404 = "404";
-    public static final String MODE_IDENTICON = "identicon";
-    public static final String MODE_FALLBACK_IDENTICON = "fallbackIdenticon";
-    public static final String MODE_GENERIC = "generic";
-    public static final String MODE_FALLBACK_GENERIC = "fallbackGeneric";
-    public static final String MODE_TRIANGLE = "triangle";
-    public static final String MODE_FALLBACK_TRIANGLE = "fallbackTriangle";
-    public static final String MODE_SQUARE = "square";
-    public static final String MODE_FALLBACK_SQUARE = "fallbackSquare";
-    public static final String MODE_GITHUB = "github";
-    public static final String MODE_FALLBACK_GITHUB = "fallbackGithub";
-
     private static final Logger log = LoggerFactory.getLogger(AvatarLoader.class);
 
     private final LdapTemplate ldapTemplate;
@@ -114,7 +102,7 @@ public class AvatarLoader {
         return avatarBuilders;
     }
 
-    public byte[] loadAvatar(String uid, String mode, ImageSize size) {
+    public byte[] loadAvatar(String uid, Mode mode, ImageSize size) {
         log.info("Looking up '{}' in AD (mode='{}', size='{}')...", uid, mode, size);
         List<User> users = findPersonInAD(uid);
         if (users.size() == 1) {
@@ -156,21 +144,21 @@ public class AvatarLoader {
         }
     }
 
-    private byte[] generateFallbackAvatar(String uid, String mode, ImageSize size) {
+    private byte[] generateFallbackAvatar(String uid, Mode mode, ImageSize size) {
         switch (mode) {
-        case MODE_IDENTICON, MODE_FALLBACK_IDENTICON:
+        case M_IDENTICON, M_FALLBACK_IDENTICON:
             log.debug("Generating identicon fallback avatar for '{}'.", uid);
             return identiconAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        case MODE_GENERIC, MODE_FALLBACK_GENERIC:
+        case M_GENERIC, M_FALLBACK_GENERIC:
             log.debug("Using generic fallback avatar for '{}'.", uid);
             return getGenericPhoto(size);
-        case MODE_TRIANGLE, MODE_FALLBACK_TRIANGLE:
+        case M_TRIANGLE, M_FALLBACK_TRIANGLE:
             log.debug("Generating triangle fallback avatar for '{}'.", uid);
             return triangleAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        case MODE_SQUARE, MODE_FALLBACK_SQUARE:
+        case M_SQUARE, M_FALLBACK_SQUARE:
             log.debug("Generating square fallback avatar for '{}'.", uid);
             return squareAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        case MODE_GITHUB, MODE_FALLBACK_GITHUB:
+        case M_GITHUB, M_FALLBACK_GITHUB:
             log.debug("Generating github fallback avatar for '{}'.", uid);
             return githubAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
         default:

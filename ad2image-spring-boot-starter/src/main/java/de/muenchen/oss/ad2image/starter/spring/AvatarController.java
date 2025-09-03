@@ -25,6 +25,8 @@ package de.muenchen.oss.ad2image.starter.spring;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
+import de.muenchen.oss.ad2image.starter.core.Ad2ImageConfigurationProperties;
+import de.muenchen.oss.ad2image.starter.core.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.CacheControl;
@@ -67,9 +69,12 @@ public class AvatarController {
 
     private final AvatarService avatarService;
 
-    public AvatarController(AvatarService avatarService) {
+    private final Ad2ImageConfigurationProperties confProps;
+
+    public AvatarController(AvatarService avatarService, Ad2ImageConfigurationProperties confProps) {
         super();
         this.avatarService = avatarService;
+        this.confProps = confProps;
     }
 
     @Operation(summary = "Retrieve a users avatar image", description = "Retrieve a users avatar image")
@@ -86,14 +91,22 @@ public class AvatarController {
             }
     )
     @GetMapping(value = "avatar", produces = { MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE })
-    public ResponseEntity<byte[]> avatar(@Parameter(description = "uid of the user") @RequestParam(required = true) final String uid,
-            @Parameter(description = "retrieval mode") @RequestParam(
-                    name = "m", required = false, defaultValue = AvatarLoader.MODE_IDENTICON
+    public ResponseEntity<byte[]> avatar(
+            @Parameter(description = "uid of the user", example = "john.doe", required = true) @RequestParam(required = true) final String uid,
+            @Parameter(description = "retrieval mode", example = "fallbackGeneric") @RequestParam(
+                    name = "m", required = false
             ) final String mode,
-            @Parameter(description = "image size") @RequestParam(name = "size", required = false, defaultValue = "64") final String requestedSize) {
+            @Parameter(
+                    description = "image size", schema = @Schema(
+                            defaultValue = "64",
+                            example = "64",
+                            allowableValues = { "64", "96", "120", "240", "360", "432", "504", "648" }
+                    )
+            ) @RequestParam(name = "size", required = false, defaultValue = "64") final String requestedSize) {
         log.info("Incoming avatar request for uid='{}', m='{}', size='{}'", uid, mode, requestedSize);
         ImageSize resolvedSize = resolveSize(requestedSize);
-        byte[] jpegThumbnail = avatarService.get(uid, mode, resolvedSize);
+        Mode resolvedMode = resolveMode(mode);
+        byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, resolvedSize);
         if (jpegThumbnail != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE);
@@ -105,6 +118,17 @@ public class AvatarController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    private Mode resolveMode(String mode) {
+        Mode resolvedMode = confProps.getDefaultMode();
+        EnumSet<Mode> allPossibleModes = EnumSet.allOf(Mode.class);
+        for (Mode possibleMode : allPossibleModes) {
+            if (possibleMode.getParameterValue().equalsIgnoreCase(mode)) {
+                return possibleMode;
+            }
+        }
+        return resolvedMode;
     }
 
     private ImageSize resolveSize(String requestedSize) {

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.times;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import de.muenchen.oss.ad2image.starter.core.Mode;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -80,7 +81,7 @@ class AvatarApplicationTest {
 
     @Test
     void avatar_request_ok() throws IOException {
-        Mockito.when(loader.loadAvatar(Mockito.anyString(), Mockito.anyString(), Mockito.any()))
+        Mockito.when(loader.loadAvatar(Mockito.anyString(), Mockito.any(), Mockito.any()))
                 .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
 
         CloseableHttpResponse firstResponse = httpClient.execute(new HttpGet("http://localhost:" + port + "/avatar?uid=dummy.user"));
@@ -90,7 +91,7 @@ class AvatarApplicationTest {
         Assertions.assertThat(secondResponse.getCode()).isEqualTo(200);
 
         // second request should get cached - so just 1 call to loader
-        Mockito.verify(loader, times(1)).loadAvatar("dummy.user", "identicon", ImageSize.HR64);
+        Mockito.verify(loader, times(1)).loadAvatar("dummy.user", Mode.M_FALLBACK_GENERIC, ImageSize.HR64);
     }
 
 }
