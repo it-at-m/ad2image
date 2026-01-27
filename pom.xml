@@ -136,7 +136,7 @@
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
 				<!-- versions above are currently broken with proxy usage: https://github.com/diffplug/spotless/issues/1658 -->
-				<version>3.2.0</version>
+				<version>3.2.1</version>
 				<dependencies>
 					<dependency>
 						<groupId>de.muenchen.oss</groupId>
