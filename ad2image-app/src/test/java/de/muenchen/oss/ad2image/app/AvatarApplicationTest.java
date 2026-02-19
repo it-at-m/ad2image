@@ -35,9 +35,10 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.ldap.core.LdapTemplate;
@@ -62,6 +63,7 @@ import de.muenchen.oss.ad2image.starter.core.ImageSize;
                 "de.muenchen.oss.ad2image.ad.user-search-base=DC=dummy,DC=domain"
         }
 )
+@AutoConfigureRestTestClient
 class AvatarApplicationTest {
 
     @MockitoBean(name = "ad2ImageLdapTemplate")

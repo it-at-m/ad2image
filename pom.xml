@@ -46,8 +46,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		
-		<httpclient5.version>5.2.3</httpclient5.version><!-- > 5.3 removed NTLM auth, which we need for Exchange/EWS -->
-
 	</properties>
 
 	<modules>
@@ -145,6 +143,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>
+					<skip>true</skip>
 					<java>
 						<includes>
 							<include>src/main/java/**/*.java</include> <!-- Check

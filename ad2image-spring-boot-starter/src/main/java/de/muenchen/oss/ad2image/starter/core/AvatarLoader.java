@@ -40,7 +40,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
@@ -54,14 +54,15 @@ import com.talanlabs.avatargenerator.GitHubAvatar;
 import com.talanlabs.avatargenerator.IdenticonAvatar;
 import com.talanlabs.avatargenerator.SquareAvatar;
 import com.talanlabs.avatargenerator.TriangleAvatar;
+import org.springframework.web.client.RestTemplate;
 
 public class AvatarLoader {
 
     private static final Logger log = LoggerFactory.getLogger(AvatarLoader.class);
 
     private final LdapTemplate ldapTemplate;
-    private final CloseableHttpClient httpClient;
     private final String exchangeBaseUrl;
+    private final RestTemplate restTemplate;
     private final AdConfigurationProperties adConfigurationProps;
     private final Map<ImageSize, Avatar> identiconAvatarBuilders;
     private final Map<ImageSize, Avatar> triangleAvatarBuilders;
@@ -74,16 +75,7 @@ public class AvatarLoader {
         this.adConfigurationProps = adConfigurationProps;
         this.ldapTemplate = ldapTemplate;
 
-        // setup HTTP Client for EWS Api calls
-        BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(
-                // TODO probabably not the securest default
-                new AuthScope(null, -1),
-                new NTCredentials(exchangeConfigurationProps.getUsername(), exchangeConfigurationProps.getPassword().toCharArray(), "ad2image",
-                        exchangeConfigurationProps.getDomain()));
-        this.httpClient = HttpClients.custom()
-                .setDefaultCredentialsProvider(credsProvider)
-                .build();
+        this.restTemplate =restTemplateBuilder.basicAuthentication(exchangeConfigurationProps.getUsername(), exchangeConfigurationProps.getPassword()).build();
         this.exchangeBaseUrl = exchangeConfigurationProps.getEwsServiceUrl();
 
         // setup avatarBuilders for each supported size
@@ -126,6 +118,7 @@ public class AvatarLoader {
 
     private byte[] getUserPhotoFromExchange(String email, String size) {
         String url = this.exchangeBaseUrl + "/s/GetUserPhoto?email=" + email + "&size=" + size;
+        // TODO use restTemplate
         HttpGet httpGet = new HttpGet(url);
         try {
             return this.httpClient.execute(httpGet, response -> {
