@@ -22,17 +22,20 @@
  */
 package de.muenchen.oss.ad2image.core;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.unauthorized;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
-import de.muenchen.oss.ad2image.starter.core.*;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryListenerConfig;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldif.LDIFException;
+import com.unboundid.ldif.LDIFReader;
+import de.muenchen.oss.ad2image.starter.core.AdConfigurationProperties;
+import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
+import de.muenchen.oss.ad2image.starter.core.ExchangeConfigurationProperties;
+import de.muenchen.oss.ad2image.starter.core.ImageSize;
+import de.muenchen.oss.ad2image.starter.core.Mode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,16 +45,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.github.tomakehurst.wiremock.stubbing.Scenario;
-import com.unboundid.ldap.listener.InMemoryDirectoryServer;
-import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
-import com.unboundid.ldap.listener.InMemoryListenerConfig;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldif.LDIFException;
-import com.unboundid.ldif.LDIFReader;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author michael.prankl
@@ -136,7 +137,7 @@ class AvatarLoaderTest {
         server = ldapServer();
     }
 
-    private static InMemoryDirectoryServer ldapServer() throws LDAPException, IOException, LDIFException {
+    public static InMemoryDirectoryServer ldapServer() throws LDAPException, IOException {
         final InMemoryListenerConfig listenerConfig = InMemoryListenerConfig.createLDAPConfig(
                 "default", 0);
         final InMemoryDirectoryServerConfig c = new InMemoryDirectoryServerConfig(

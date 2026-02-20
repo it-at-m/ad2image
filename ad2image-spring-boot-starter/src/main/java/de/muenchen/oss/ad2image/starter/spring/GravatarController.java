@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Controller
-@Tag(name = "gravatar", description = "gravatar compatible API")
+@Tag(name = "gravatar", description = "<a href=\"https://docs.gravatar.com/sdk/images/\">Gravatar</a> compatibility API")
 public class GravatarController {
 
     private static final Logger log = LoggerFactory.getLogger(GravatarController.class);
@@ -81,12 +81,11 @@ public class GravatarController {
     @GetMapping(value = "gravatar/{mailhash}", produces = { MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE })
     public ResponseEntity<byte[]> avatar(
             @Parameter(
-                    description = "SHA256 hash of users email address", example = "27205e5c51cb03f862138b22bcb5dc20f94a342e744ff6df1b8dc8af3c865109",
+                    description = "<a href=\"https://docs.gravatar.com/rest/hash/\">SHA256 hash</a> of a users email address",
                     required = true
             ) @PathVariable(name = "mailhash") String sha256MailHash,
             @Parameter(
-                    description = "d", schema = @Schema(
-                            example = "identicon",
+                    description = "default when user has no image", schema = @Schema(
                             allowableValues = { "404", "identicon" }
                     )
             ) @RequestParam(
@@ -96,16 +95,16 @@ public class GravatarController {
                     name = "default", required = false
             ) final String defaultParam,
             @Parameter(
+                    description = "image size in pixels",
                     schema = @Schema(
                             name = "s",
-                            description = "image size",
                             defaultValue = "80",
                             example = "80",
                             minimum = "1",
                             maximum = "2048"
                     )
-            ) @RequestParam(name = "size", required = false) final Integer requestedSParam,
-            @RequestParam(name = "size", required = false) final Integer requestedSizeParam) {
+            ) @RequestParam(name = "s", required = false) final Integer requestedSParam,
+            @Parameter(hidden = true) @RequestParam(name = "size", required = false) final Integer requestedSizeParam) {
         String requestedDefault = dParam != null ? dParam : defaultParam;
         Integer requestedSize = requestedSParam != null ? requestedSParam : requestedSizeParam;
         if (requestedSize == null) {
@@ -122,9 +121,9 @@ public class GravatarController {
         Mode resolvedMode = resolveMode(requestedDefault);
         String uid = gravatarHashMapService.getUidForMailHash(sha256MailHash.toLowerCase());
         if (uid != null) {
-            log.info("Incoming gravatar request for sha256MailHash='{}', d='{}', size='{}' - resolved to uid='{}'", sha256MailHash, requestedDefault,
-                    resolvedSize,
-                    uid);
+            log.info("Incoming gravatar request for sha256MailHash='{}', d='{}' (=> m='{}'), size='{}' - resolved to uid='{}'", sha256MailHash,
+                    requestedDefault,
+                    resolvedSize, resolvedMode, uid);
             byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, resolvedSize);
             if (jpegThumbnail != null) {
                 HttpHeaders headers = new HttpHeaders();

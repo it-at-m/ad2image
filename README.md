@@ -97,17 +97,17 @@ internally resolves the user photos from your Active Directory / Exchange enviro
 `GET /gravatar/<sha256-hex-hash-of-lowercase-trimmed-mail-address>?[d=identicon/404]&s=200`
 
 When the Gravatar compatability endpoint is activated, ad2image retrieves all users from Active Directory on startup to
-compute a in-memory lookup table that contains the SHA256-hashed mail addresses. ad2image also can periodically update
-this lookup table.
+compute an in-memory lookup table that contains the SHA256-hashed mail addresses. ad2image also can periodically update
+this lookup table during runtime.
 See [Configuration](#configuration) for more details on how to configure this endpoint for your environment.
 
 This endpoint also only supports a subset of the Gravatar API features:
 
-- Default image (`d` query param): only `identicon` and `404` are supported
+- Default image (`d` query param): only `identicon` and `404` are supported, rest will be ignored
 - Size: can be requested between 1 and 2048px, but ad2image only delivers the nearest picture size available in
   AD/Exchange (= no scaling, see "possible resolutions")
-- Force Default (`f`): not supported
-- Rating (`r`): not supported
+- Force Default (`f`): not supported, will be ignored
+- Rating (`r`): not supported, will be ignored
 
 ### Running as a container (standalone)
 
