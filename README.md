@@ -104,7 +104,8 @@ See [Configuration](#configuration) for more details on how to configure this en
 This endpoint also only supports a subset of the Gravatar API features:
 
 - Default image (`d` query param): only `identicon` and `404` are supported
-- Size: TODO
+- Size: can be requested between 1 and 2048px, but ad2image only delivers the nearest picture size available in
+  AD/Exchange (= no scaling, see "possible resolutions")
 - Force Default (`f`): not supported
 - Rating (`r`): not supported
 

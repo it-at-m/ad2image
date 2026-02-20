@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Controller
@@ -95,21 +96,34 @@ public class GravatarController {
                     name = "default", required = false
             ) final String defaultParam,
             @Parameter(
-                    description = "image size", schema = @Schema(
-                            defaultValue = "64",
-                            example = "64",
-                            allowableValues = { "64", "96", "120", "240", "360", "432", "504", "648" }
+                    schema = @Schema(
+                            name = "s",
+                            description = "image size",
+                            defaultValue = "80",
+                            example = "80",
+                            minimum = "1",
+                            maximum = "2048"
                     )
-            ) @RequestParam(name = "size", required = false, defaultValue = "64") final String requestedSize) {
+            ) @RequestParam(name = "size", required = false) final Integer requestedSParam,
+            @RequestParam(name = "size", required = false) final Integer requestedSizeParam) {
         String requestedDefault = dParam != null ? dParam : defaultParam;
-        log.debug("Incoming gravatar request for sha256MailHash='{}', d='{}', size='{}'", sha256MailHash, requestedDefault, requestedSize);
-        // TODO size mapping (1-2048px to nearest ImageSize / or scaling)
+        Integer requestedSize = requestedSParam != null ? requestedSParam : requestedSizeParam;
+        if (requestedSize == null) {
+            requestedSize = 80;
+        }
+        if (requestedSize <= 0) {
+            requestedSize = 80;
+        }
+        if (requestedSize > 2048) {
+            requestedSize = 2048;
+        }
+        log.debug("Incoming gravatar request for sha256MailHash='{}', d='{}', s='{}'", sha256MailHash, requestedDefault, requestedSize);
         ImageSize resolvedSize = resolveSize(requestedSize);
         Mode resolvedMode = resolveMode(requestedDefault);
         String uid = gravatarHashMapService.getUidForMailHash(sha256MailHash.toLowerCase());
         if (uid != null) {
             log.info("Incoming gravatar request for sha256MailHash='{}', d='{}', size='{}' - resolved to uid='{}'", sha256MailHash, requestedDefault,
-                    requestedSize,
+                    resolvedSize,
                     uid);
             byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, resolvedSize);
             if (jpegThumbnail != null) {
@@ -139,20 +153,32 @@ public class GravatarController {
         return resolvedMode;
     }
 
-    private ImageSize resolveSize(String requestedSize) {
-        ImageSize resolvedSize = ImageSize.getAdDefaultImageSize();
-        try {
-            Integer requestedSizeInteger = Integer.valueOf(requestedSize);
-            EnumSet<ImageSize> allPossibleSizes = EnumSet.allOf(ImageSize.class);
-            for (ImageSize imageSize : allPossibleSizes) {
-                if (imageSize.getSizePixels() == requestedSizeInteger) {
-                    return imageSize;
-                }
+    private ImageSize resolveSize(Integer requestedSizeInteger) {
+        ImageSize adDefaultImageSize = ImageSize.getAdDefaultImageSize();
+        EnumSet<ImageSize> allPossibleSizes = EnumSet.allOf(ImageSize.class);
+        List<Integer> allPossibleSizesList = allPossibleSizes.stream().map(ImageSize::getSizePixels).toList();
+        int nearestSize = findNearestSize(allPossibleSizesList, requestedSizeInteger);
+        for (ImageSize imageSize : allPossibleSizes) {
+            if (imageSize.getSizePixels() == nearestSize) {
+                return imageSize;
             }
-        } catch (NumberFormatException e) {
-            log.warn("Could not resolve size parameter value '{}' to a valid ImageSize enum constant, using default size {}.", requestedSize, resolvedSize);
         }
-        return resolvedSize;
+        return adDefaultImageSize;
+    }
+
+    private static int findNearestSize(List<Integer> sizes, int targetSize) {
+        int nearestSize = sizes.getFirst();
+        int minDifference = Math.abs(targetSize - nearestSize);
+
+        for (int size : sizes) {
+            int difference = Math.abs(targetSize - size);
+            if (difference < minDifference) {
+                minDifference = difference;
+                nearestSize = size;
+            }
+        }
+
+        return nearestSize;
     }
 
 }
