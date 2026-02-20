@@ -96,12 +96,12 @@ public class AvatarLoader {
         log.info("Looking up '{}' in AD (mode='{}', size='{}')...", uid, mode, size);
         List<User> users = findPersonInAD(uid);
         if (users.size() == 1) {
-            User user = users.get(0);
+            User user = users.getFirst();
             if (user.getThumbnailPhoto() != null) {
                 // user has stored a picture
                 if (size.equals(ImageSize.getAdDefaultImageSize())) {
                     log.debug("Using AD thumbnailPhoto as avatar for '{}'.", uid);
-                    return users.get(0).getThumbnailPhoto();
+                    return user.getThumbnailPhoto();
                 } else {
                     log.debug("Calling Exchange EWS API GetUserPhoto for '{}' with size '{}'.", uid, size);
                     return getUserPhotoFromExchange(user.getEmail(), size.getSizeRequestedValue());
@@ -135,26 +135,32 @@ public class AvatarLoader {
     }
 
     private byte[] generateFallbackAvatar(String uid, Mode mode, ImageSize size) {
-        switch (mode) {
-        case M_IDENTICON, M_FALLBACK_IDENTICON:
+        return switch (mode) {
+        case M_IDENTICON, M_FALLBACK_IDENTICON -> {
             log.debug("Generating identicon fallback avatar for '{}'.", uid);
-            return identiconAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        case M_GENERIC, M_FALLBACK_GENERIC:
-            log.debug("Using generic fallback avatar for '{}'.", uid);
-            return getGenericPhoto(size);
-        case M_TRIANGLE, M_FALLBACK_TRIANGLE:
-            log.debug("Generating triangle fallback avatar for '{}'.", uid);
-            return triangleAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        case M_SQUARE, M_FALLBACK_SQUARE:
-            log.debug("Generating square fallback avatar for '{}'.", uid);
-            return squareAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        case M_GITHUB, M_FALLBACK_GITHUB:
-            log.debug("Generating github fallback avatar for '{}'.", uid);
-            return githubAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        default:
-            log.debug("No thumbnailPhoto for '{}' found and no fallback specified - returning null.", uid);
-            return null;
+            yield identiconAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
         }
+        case M_GENERIC, M_FALLBACK_GENERIC -> {
+            log.debug("Using generic fallback avatar for '{}'.", uid);
+            yield getGenericPhoto(size);
+        }
+        case M_TRIANGLE, M_FALLBACK_TRIANGLE -> {
+            log.debug("Generating triangle fallback avatar for '{}'.", uid);
+            yield triangleAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
+        }
+        case M_SQUARE, M_FALLBACK_SQUARE -> {
+            log.debug("Generating square fallback avatar for '{}'.", uid);
+            yield squareAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
+        }
+        case M_GITHUB, M_FALLBACK_GITHUB -> {
+            log.debug("Generating github fallback avatar for '{}'.", uid);
+            yield githubAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
+        }
+        default -> {
+            log.debug("No thumbnailPhoto for '{}' found and no fallback specified - returning null.", uid);
+            yield null;
+        }
+        };
 
     }
 

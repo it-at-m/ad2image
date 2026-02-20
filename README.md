@@ -11,7 +11,8 @@
 
 **ad2image** provides an easy-to-use, minimalistic HTTP API to retrieve user photos from an Active Directory / Microsoft
 Exchange environment. It also provides fallback photos
-using [avatar-generator](https://gitlab.talanlabs.com/gabriel-allaigre/avatar-generator-parent) if a user has no photo stored.
+using [avatar-generator](https://gitlab.talanlabs.com/gabriel-allaigre/avatar-generator-parent) if a user has no photo
+stored.
 
 Behind the curtains, by default a 64x64 pixel thumbnail photo is retrieved from Active Directory (Attribute
 `thumbnailPhoto`). Higher resolution photos can also be requested, those will be fetched by using
@@ -39,10 +40,12 @@ This project is built with technologies we use in our projects:
 mvn clean install
 ```
 
-For development, a Active Directory / Exchange environment is not needed. It is mocked by an embedded LDAP server and
+For development, an Active Directory / Exchange environment is not needed. It is mocked by an embedded LDAP server and
 WireMock (for the EWS API).
 
 ## Documentation
+
+OpenAPI v3 documentation is provided and can be retrieved via Swagger UI (`<your-instance>/swagger-ui/index.html`).
 
 ### Using the API
 
@@ -86,7 +89,24 @@ Possible resolutions (`size`):
 - `504`
 - `648`
 
-OpenAPI v3 documentation is also provided and can be retrieved via Swagger UI (`<your-instance>/swagger-ui/index.html`).
+### Gravatar compatability API endpoint
+
+ad2image provides an API endpoint that mimics the [Gravatar API](https://docs.gravatar.com/sdk/images/) but
+internally resolves the user photos from your Active Directory / Exchange environment:
+
+`GET /gravatar/<sha256-hex-hash-of-lowercase-trimmed-mail-address>?[d=identicon/404]&s=200`
+
+When the Gravatar compatability endpoint is activated, ad2image retrieves all users from Active Directory on startup to
+compute a in-memory lookup table that contains the SHA256-hashed mail addresses. ad2image also can periodically update
+this lookup table.
+See [Configuration](#configuration) for more details on how to configure this endpoint for your environment.
+
+This endpoint also only supports a subset of the Gravatar API features:
+
+- Default image (`d` query param): only `identicon` and `404` are supported
+- Size: TODO
+- Force Default (`f`): not supported
+- Rating (`r`): not supported
 
 ### Running as a container (standalone)
 
@@ -143,17 +163,22 @@ To configure ad2image, add the corresponding `de.muenchen.oss.ad2image.*` proper
 
 ad2image can be configured via Spring environment abstraction.
 
-| Environment variable                             | System/Spring property                           | Description                                                                                                                                                                                                     | Default value                                     | Required |
-|--------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|----------|
-| `DE_MUENCHEN_OSS_AD2IMAGE_DEFAULT_MODE`          | `de.muenchen.oss.ad2image.default-mode`          | Default mode (`m`) if user provides none.                                                                                                                                                                       | `"M_FALLBACK_GENERIC"` (`fallbackGeneric`)        | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_URL`                | `de.muenchen.oss.ad2image.ad.url`                | Connection URL for AD server, for example 'ldaps://example.com:636'.                                                                                                                                            | -                                                 | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_DN`            | `de.muenchen.oss.ad2image.ad.user-dn`            | Bind User-DN for AD authentication                                                                                                                                                                              | -                                                 | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_PASSWORD`           | `de.muenchen.oss.ad2image.ad.password`           | Password for AD authentication                                                                                                                                                                                  | -                                                 | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_BASE`   | `de.muenchen.oss.ad2image.ad.user-search-base`   | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                   | -                                                 | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_FILTER` | `de.muenchen.oss.ad2image.ad.user-search-filter` | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_EWS_SERVICE_URL`   | `de.muenchen.oss.ad2image.ews.ews-service-url`   | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. `https://example.com/ews/Exchange.asmx`. | -                                                 | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_USERNAME`          | `de.muenchen.oss.ad2image.ews.username`          | Username for EWS [Basic Authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#basic-authentication).                             | -                                                 | yes      |
-| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_PASSWORD`          | `de.muenchen.oss.ad2image.ews.password`          | Password for EWS [Basic Authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#basic-authentication).                             | -                                                 | yes      |
+| Environment variable                                        | System/Spring property                                      | Description                                                                                                                                                                                                     | Default value                                     | Required |
+|-------------------------------------------------------------|-------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|----------|
+| `DE_MUENCHEN_OSS_AD2IMAGE_ENABLED`                          | `de.muenchen.oss.ad2image.enabled`                          | can be used to disable ad2image auto configuration (if integrated in your own application)                                                                                                                      | -                                                 | no       |
+| `DE_MUENCHEN_OSS_AD2IMAGE_DEFAULT_MODE`                     | `de.muenchen.oss.ad2image.default-mode`                     | Default mode (`m`) if user provides none.                                                                                                                                                                       | `"M_FALLBACK_GENERIC"` (`fallbackGeneric`)        | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_URL`                           | `de.muenchen.oss.ad2image.ad.url`                           | Connection URL for AD server, for example 'ldaps://example.com:636'.                                                                                                                                            | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_DN`                       | `de.muenchen.oss.ad2image.ad.user-dn`                       | Bind User-DN for AD authentication                                                                                                                                                                              | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_PASSWORD`                      | `de.muenchen.oss.ad2image.ad.password`                      | Password for AD authentication                                                                                                                                                                                  | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_BASE`              | `de.muenchen.oss.ad2image.ad.user-search-base`              | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                   | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_FILTER`            | `de.muenchen.oss.ad2image.ad.user-search-filter`            | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_EWS_SERVICE_URL`              | `de.muenchen.oss.ad2image.ews.ews-service-url`              | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. `https://example.com/ews/Exchange.asmx`. | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_USERNAME`                     | `de.muenchen.oss.ad2image.ews.username`                     | Username for EWS [Basic Authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#basic-authentication).                             | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_EWS_PASSWORD`                     | `de.muenchen.oss.ad2image.ews.password`                     | Password for EWS [Basic Authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#basic-authentication).                             | -                                                 | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_GRAVATAR_ENABLED`                 | `de.muenchen.oss.ad2image.gravatar.enabled`                 | Enables/disables the Gravatar compatability endpoint.                                                                                                                                                           | `false`                                           | no       |
+| `DE_MUENCHEN_OSS_AD2IMAGE_GRAVATAR_HASH_CACHE_REFRESH_CRON` | `de.muenchen.oss.ad2image.gravatar.hash-cache-refresh-cron` | Spring "cron" expression for periodic refresh of the SHA256 email address hashes, '-' to disable.                                                                                                               | `-`                                               | no       |
+| `DE_MUENCHEN_OSS_AD2IMAGE_GRAVATAR_MAP_POPULATION_FILTER`   | `de.muenchen.oss.ad2image.gravatar.map-population-filter`   | LDAP search filter for users which should be included in generation of SHA256-hashed email addresses.                                                                                                           | `(&(objectClass=organizationalPerson)(mail=*))`   | no       |
+| `DE_MUENCHEN_OSS_AD2IMAGE_GRAVATAR_PAGE_SIZE`               | `de.muenchen.oss.ad2image.gravatar.page-size`               | page size for retrieval of users during map population.                                                                                                                                                         | `500`                                             | no       |
 
 ## Contributing
 
