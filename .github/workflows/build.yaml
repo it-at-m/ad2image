@@ -2,8 +2,8 @@ name: build and test
 
 on:
   push:
-  pull_request:
     branches: ["main"]
+  pull_request:
 
 jobs:
   build-maven:

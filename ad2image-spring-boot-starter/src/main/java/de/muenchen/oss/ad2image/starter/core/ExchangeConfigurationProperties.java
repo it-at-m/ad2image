@@ -35,16 +35,16 @@ import jakarta.validation.constraints.NotEmpty;
 public class ExchangeConfigurationProperties {
 
     /**
-     * EWS service URL, e.g.
+     * EWS service URL, e.g. https://example.com/ews/Exchange.asmx
      */
     @NotEmpty
     private String ewsServiceUrl;
+    /** Username for EWS Basic Auth, e.g. user@example.com **/
     @NotEmpty
     private String username;
+    /** Password for EWS Basic Auth **/
     @NotEmpty
     private String password;
-    @NotEmpty
-    private String domain;
 
     public String getUsername() {
         return username;
@@ -68,14 +68,6 @@ public class ExchangeConfigurationProperties {
 
     public void setEwsServiceUrl(String baseUrl) {
         this.ewsServiceUrl = baseUrl;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
     }
 
 }
