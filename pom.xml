@@ -39,7 +39,7 @@
 	<url>https://github.com/it-at-m/ad2image</url>
 
 	<properties>
-		<java.version>21</java.version>
+		<java.version>25</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
