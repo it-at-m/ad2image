@@ -33,7 +33,7 @@ jobs:
       - name: Install Java and Maven
         uses: actions/setup-java@v5
         with:
-          java-version: 21
+          java-version: 25
           distribution: "temurin"
           cache: "maven"
 
@@ -60,10 +60,10 @@ jobs:
       - name: Setup git user
         uses: fregante/setup-git-user@v2
 
-      - name: Set up JDK 21 and OSSRH auth / GPG signing
+      - name: Set up JDK 25 and OSSRH auth / GPG signing
         uses: actions/setup-java@v5
         with:
-          java-version: 21
+          java-version: 25
           distribution: "temurin"
           cache: "maven"
           server-id: "central"
