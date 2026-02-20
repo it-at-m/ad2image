@@ -22,9 +22,10 @@
  */
 package de.muenchen.oss.ad2image.app;
 
-import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
 import de.muenchen.oss.ad2image.starter.core.ImageSize;
 import de.muenchen.oss.ad2image.starter.core.Mode;
+import de.muenchen.oss.ad2image.starter.spring.AvatarService;
+import de.muenchen.oss.ad2image.starter.spring.GravatarHashMapService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,22 +43,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static org.mockito.Mockito.times;
-
-/**
- * @author michael.prankl
- *
- */
 @SpringBootTest(
         webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
                 "de.muenchen.oss.ad2image.ews.username=dummyUser",
                 "de.muenchen.oss.ad2image.ews.password=dummyPassword",
-                "de.muenchen.oss.ad2image.ews.domain=dummy.domain",
                 "de.muenchen.oss.ad2image.ews.ews-service-url=http://localhost/Exchange.asmx",
                 "de.muenchen.oss.ad2image.ad.url=ldap://localhost:389",
                 "de.muenchen.oss.ad2image.ad.user-dn=CN=user,DC=dummy,DC=domain",
                 "de.muenchen.oss.ad2image.ad.password=dummyPassword",
-                "de.muenchen.oss.ad2image.ad.user-search-base=DC=dummy,DC=domain"
+                "de.muenchen.oss.ad2image.ad.user-search-base=DC=dummy,DC=domain",
+                "de.muenchen.oss.ad2image.gravatar.enabled=true",
         }
 )
 @AutoConfigureTestRestTemplate
@@ -67,7 +62,10 @@ class AvatarApplicationTest {
     private LdapTemplate ldapTemplate;
 
     @MockitoBean
-    private AvatarLoader loader;
+    private AvatarService service;
+
+    @MockitoBean
+    private GravatarHashMapService gravatarHashMapService;
 
     @LocalServerPort
     private Integer port;
@@ -77,16 +75,25 @@ class AvatarApplicationTest {
 
     @Test
     void avatar_request_ok() throws IOException {
-        Mockito.when(loader.loadAvatar(Mockito.anyString(), Mockito.any(), Mockito.any()))
+        Mockito.when(service.get(Mockito.anyString(), Mockito.any(), Mockito.any()))
                 .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
 
-        ResponseEntity<String> firstResponse = restTemplate.getForEntity("http://localhost:" + port + "/avatar?uid=dummy.user", String.class);
-        Assertions.assertThat(firstResponse.getStatusCode().value()).isEqualTo(200);
-        ResponseEntity<String> secondResponse = restTemplate.getForEntity("http://localhost:" + port + "/avatar?uid=dummy.user", String.class);
-        Assertions.assertThat(secondResponse.getStatusCode().value()).isEqualTo(200);
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:" + port + "/avatar?uid=dummy.user", String.class);
+        Assertions.assertThat(response.getStatusCode().value()).isEqualTo(200);
 
-        // second request should get cached - so just 1 call to loader
-        Mockito.verify(loader, times(1)).loadAvatar("dummy.user", Mode.M_FALLBACK_GENERIC, ImageSize.HR64);
+        Mockito.verify(service).get("dummy.user", Mode.M_FALLBACK_GENERIC, ImageSize.HR64);
+    }
+
+    @Test
+    void gravatar_request_ok() throws IOException {
+        Mockito.when(gravatarHashMapService.getUidForMailHash(Mockito.anyString())).thenReturn("dummy.user");
+        Mockito.when(service.get(Mockito.anyString(), Mockito.any(), Mockito.any()))
+                .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
+
+        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:" + port + "/gravatar/000000000", String.class);
+        Assertions.assertThat(response.getStatusCode().value()).isEqualTo(200);
+
+        Mockito.verify(service).get("dummy.user", Mode.M_FALLBACK_GENERIC, ImageSize.HR64);
     }
 
 }

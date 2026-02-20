@@ -32,6 +32,7 @@ import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 
@@ -43,6 +44,7 @@ import de.muenchen.oss.ad2image.starter.core.ExchangeConfigurationProperties;
 @AutoConfiguration
 @ConditionalOnProperty(value = "de.muenchen.oss.ad2image.enabled", havingValue = "true", matchIfMissing = true)
 @AutoConfigureAfter(value = { WebMvcAutoConfiguration.class })
+@Import(GravatarConfiguration.class)
 public class Ad2ImageAutoConfiguration {
 
     @Configuration

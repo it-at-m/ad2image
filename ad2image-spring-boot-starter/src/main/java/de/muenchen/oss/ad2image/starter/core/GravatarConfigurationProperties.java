@@ -23,56 +23,36 @@
 package de.muenchen.oss.ad2image.starter.core;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.validation.annotation.Validated;
-
-import jakarta.validation.Valid;
 
 /**
  * @author michael.prankl
- *
  */
 @Validated
-@ConfigurationProperties(prefix = "de.muenchen.oss.ad2image")
-public class Ad2ImageConfigurationProperties {
-
-    @NestedConfigurationProperty
-    @Valid
-    private AdConfigurationProperties ad;
-
-    @NestedConfigurationProperty
-    @Valid
-    private ExchangeConfigurationProperties ews;
-
-    @NestedConfigurationProperty
-    @Valid
-    private GravatarConfigurationProperties gravatar;
+@ConfigurationProperties(prefix = "de.muenchen.oss.ad2image.gravatar")
+public class GravatarConfigurationProperties {
 
     /**
-     * Enable/disable the integration.
+     * Enables/disables the gravatar compatability endpoint.
      */
-    private boolean enabled = true;
+    private boolean enabled;
 
     /**
-     * default mode
+     * cron expression for periodic refresh of the SHA256 email address hashes, "-" to disable.
      */
-    private Mode defaultMode = Mode.M_FALLBACK_GENERIC;
+    private String hashCacheRefreshCron = "-";
 
-    public AdConfigurationProperties getAd() {
-        return ad;
-    }
+    /**
+     * LDAP search filter for users which should be included in generation of SHA256-hashed email
+     * addresses, e.g.
+     * '(&(objectClass=organizationalPerson)(mail=*))'
+     */
+    private String mapPopulationFilter = "(&(objectClass=organizationalPerson)(mail=*))";
 
-    public void setAd(AdConfigurationProperties ad) {
-        this.ad = ad;
-    }
-
-    public ExchangeConfigurationProperties getEws() {
-        return ews;
-    }
-
-    public void setEws(ExchangeConfigurationProperties ews) {
-        this.ews = ews;
-    }
+    /**
+     * page size for retrieval of users
+     */
+    private Integer pageSize = 500;
 
     public boolean isEnabled() {
         return enabled;
@@ -82,19 +62,27 @@ public class Ad2ImageConfigurationProperties {
         this.enabled = enabled;
     }
 
-    public Mode getDefaultMode() {
-        return defaultMode;
+    public String getHashCacheRefreshCron() {
+        return hashCacheRefreshCron;
     }
 
-    public void setDefaultMode(Mode defaultMode) {
-        this.defaultMode = defaultMode;
+    public void setHashCacheRefreshCron(String hashCacheRefreshCron) {
+        this.hashCacheRefreshCron = hashCacheRefreshCron;
     }
 
-    public GravatarConfigurationProperties getGravatar() {
-        return gravatar;
+    public String getMapPopulationFilter() {
+        return mapPopulationFilter;
     }
 
-    public void setGravatar(GravatarConfigurationProperties gravatar) {
-        this.gravatar = gravatar;
+    public void setMapPopulationFilter(String mapPopulationFilter) {
+        this.mapPopulationFilter = mapPopulationFilter;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }
