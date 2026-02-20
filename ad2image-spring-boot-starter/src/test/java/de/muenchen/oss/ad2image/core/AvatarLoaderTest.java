@@ -77,24 +77,10 @@ class AvatarLoaderTest {
 
     @Test
     void bigger_size_from_ews() throws IOException {
-        // stub Non-Preemptive authentication flow (default of Apache HTTP Client) - first request is without auth
-        // @formatter:off
         wm1.stubFor(get(urlPathEqualTo("/s/GetUserPhoto"))
-                .inScenario("Non-Preemptive Auth")
-                .whenScenarioStateIs(Scenario.STARTED)
-                .willReturn(
-                        unauthorized()
-                            .withHeader("WWW-Authenticate", "Negotiate")
-                            .withHeader("WWW-Authenticate", "NTLM")
-                            )
-                .willSetStateTo("Negotiated"));
-        wm1.stubFor(get(urlPathEqualTo("/s/GetUserPhoto"))
-                .inScenario("Non-Preemptive Auth")
-                .whenScenarioStateIs("Negotiated")
-                .withHeader("Authorization", WireMock.containing("NTLM"))
+                .withHeader("Authorization", WireMock.containing("Basic"))
                 .willReturn(
                         ok().withBodyFile("account_dummy.png")));
-        // @formatter:on
         String uid = "maxi.mustermann";
         byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_IDENTICON, ImageSize.HR648);
         assertThat(loadAvatar).isNotEmpty();
@@ -133,7 +119,6 @@ class AvatarLoaderTest {
         adConf.setUserSearchBase("ou=Users,dc=example,dc=com");
         ExchangeConfigurationProperties exchangeConf = new ExchangeConfigurationProperties();
         exchangeConf.setEwsServiceUrl(wm1.getRuntimeInfo().getHttpBaseUrl());
-        exchangeConf.setDomain("localhost");
         exchangeConf.setUsername("aDummyUsername");
         exchangeConf.setPassword("aDummyPassword");
         LdapContextSource source = new LdapContextSource();

@@ -22,39 +22,35 @@
  */
 package de.muenchen.oss.ad2image.starter.core;
 
-import java.io.IOException;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
-import org.apache.hc.client5.http.auth.AuthScope;
-import org.apache.hc.client5.http.auth.NTCredentials;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.restclient.RestTemplateBuilder;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.query.LdapQueryBuilder;
-import org.springframework.ldap.support.LdapEncoder;
-import org.springframework.util.StreamUtils;
-
 import com.talanlabs.avatargenerator.Avatar;
 import com.talanlabs.avatargenerator.Avatar.AvatarBuilder;
 import com.talanlabs.avatargenerator.GitHubAvatar;
 import com.talanlabs.avatargenerator.IdenticonAvatar;
 import com.talanlabs.avatargenerator.SquareAvatar;
 import com.talanlabs.avatargenerator.TriangleAvatar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.restclient.RestTemplateBuilder;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.ldap.support.LdapEncoder;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.io.IOException;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 public class AvatarLoader {
 
@@ -75,7 +71,9 @@ public class AvatarLoader {
         this.adConfigurationProps = adConfigurationProps;
         this.ldapTemplate = ldapTemplate;
 
-        this.restTemplate =restTemplateBuilder.basicAuthentication(exchangeConfigurationProps.getUsername(), exchangeConfigurationProps.getPassword()).build();
+        this.restTemplate = restTemplateBuilder
+                .basicAuthentication(exchangeConfigurationProps.getUsername(), exchangeConfigurationProps.getPassword())
+                .build();
         this.exchangeBaseUrl = exchangeConfigurationProps.getEwsServiceUrl();
 
         // setup avatarBuilders for each supported size
@@ -118,20 +116,19 @@ public class AvatarLoader {
 
     private byte[] getUserPhotoFromExchange(String email, String size) {
         String url = this.exchangeBaseUrl + "/s/GetUserPhoto?email=" + email + "&size=" + size;
-        // TODO use restTemplate
-        HttpGet httpGet = new HttpGet(url);
+
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
         try {
-            return this.httpClient.execute(httpGet, response -> {
-                // Check if the response is successful
-                if (response.getCode() == 200) {
-                    // Convert the response entity to byte array
-                    return EntityUtils.toByteArray(response.getEntity());
-                } else {
-                    log.warn("Failed to retrieve user photo from Exchange, HTTP status code: {}", response.getCode());
-                    return null;
-                }
-            });
-        } catch (IOException e) {
+            ResponseEntity<byte[]> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                return responseEntity.getBody();
+            } else {
+                log.warn("Failed to retrieve user photo from Exchange, HTTP status code: {}", responseEntity.getStatusCode());
+                return null;
+            }
+        } catch (RestClientException e) {
             log.error("Exception while fetching user photo from Exchange.", e);
             return null;
         }

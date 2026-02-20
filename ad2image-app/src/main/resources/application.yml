@@ -7,12 +7,3 @@ spring:
   cache:
     jcache:
       config: classpath:default_ehcache.xml
-  autoconfigure:
-    exclude: 
-      - org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfiguration
-      - org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration
-
-logging:
-  level:
-    '[org.apache.hc.client5.http.impl.auth.HttpAuthenticator]': ERROR
-    

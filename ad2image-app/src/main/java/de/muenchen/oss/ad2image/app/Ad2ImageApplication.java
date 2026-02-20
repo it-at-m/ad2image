@@ -28,10 +28,10 @@ import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @EnableCaching
-public class AvatarApplication {
+public class Ad2ImageApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AvatarApplication.class, args);
+        SpringApplication.run(Ad2ImageApplication.class, args);
     }
 
 }
