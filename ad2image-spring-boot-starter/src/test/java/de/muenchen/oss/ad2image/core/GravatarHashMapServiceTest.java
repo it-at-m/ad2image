@@ -44,12 +44,16 @@ class GravatarHashMapServiceTest {
 
     @Test
     void initializes_from_ad() {
-        Assertions.assertThat(sut.getUidForMailHash("abc")).isNull();
+        Assertions.assertThat(sut.getUidForSha256MailHash("abc")).isNull();
+        Assertions.assertThat(sut.getUidForMd5MailHash("abc")).isNull();
         // maxi.mustermann.email
-        Assertions.assertThat(sut.getUidForMailHash("4acd4226a47683e8500b832633246a231726686714965da16a0d2aabffffad3f")).isEqualTo("maxi.mustermann");
+        Assertions.assertThat(sut.getUidForSha256MailHash("4acd4226a47683e8500b832633246a231726686714965da16a0d2aabffffad3f")).isEqualTo("maxi.mustermann");
+        Assertions.assertThat(sut.getUidForMd5MailHash("b2940059a05825d2873e87ddff2104ba")).isEqualTo("maxi.mustermann");
         sut.updateCache();
-        Assertions.assertThat(sut.getUidForMailHash("abc")).isNull();
-        Assertions.assertThat(sut.getUidForMailHash("4acd4226a47683e8500b832633246a231726686714965da16a0d2aabffffad3f")).isEqualTo("maxi.mustermann");
+        Assertions.assertThat(sut.getUidForSha256MailHash("abc")).isNull();
+        Assertions.assertThat(sut.getUidForMd5MailHash("abc")).isNull();
+        Assertions.assertThat(sut.getUidForSha256MailHash("4acd4226a47683e8500b832633246a231726686714965da16a0d2aabffffad3f")).isEqualTo("maxi.mustermann");
+        Assertions.assertThat(sut.getUidForMd5MailHash("b2940059a05825d2873e87ddff2104ba")).isEqualTo("maxi.mustermann");
     }
 
     @BeforeEach

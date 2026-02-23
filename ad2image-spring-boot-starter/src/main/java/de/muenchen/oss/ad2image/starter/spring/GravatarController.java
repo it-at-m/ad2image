@@ -83,11 +83,11 @@ public class GravatarController {
             @Parameter(
                     description = "<a href=\"https://docs.gravatar.com/rest/hash/\">SHA256 hash</a> of a users email address",
                     required = true
-            ) @PathVariable(name = "mailhash") String sha256MailHash,
+            ) @PathVariable(name = "mailhash") String mailHash,
             @Parameter(
                     description = "default when user has no image", schema = @Schema(
-                            allowableValues = { "404", "identicon" }
-                    )
+                    allowableValues = { "404", "identicon" }
+            )
             ) @RequestParam(
                     name = "d", required = false
             ) final String dParam,
@@ -116,12 +116,17 @@ public class GravatarController {
         if (requestedSize > 2048) {
             requestedSize = 2048;
         }
-        log.debug("Incoming gravatar request for sha256MailHash='{}', d='{}', s='{}'", sha256MailHash, requestedDefault, requestedSize);
+        log.debug("Incoming gravatar request for mailHash='{}', d='{}', s='{}'", mailHash, requestedDefault, requestedSize);
         ImageSize resolvedSize = resolveSize(requestedSize);
         Mode resolvedMode = resolveMode(requestedDefault);
-        String uid = gravatarHashMapService.getUidForMailHash(sha256MailHash.toLowerCase());
+        String uid;
+        if (mailHash.length() == 64) {
+            uid = gravatarHashMapService.getUidForSha256MailHash(mailHash.toLowerCase());
+        } else {
+            uid = gravatarHashMapService.getUidForMd5MailHash(mailHash.toLowerCase());
+        }
         if (uid != null) {
-            log.info("Incoming gravatar request for sha256MailHash='{}', d='{}' (=> m='{}'), size='{}' - resolved to uid='{}'", sha256MailHash,
+            log.info("Incoming gravatar request for mailHash='{}', d='{}' (=> m='{}'), size='{}' - resolved to uid='{}'", mailHash,
                     requestedDefault,
                     resolvedSize, resolvedMode, uid);
             byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, resolvedSize);
@@ -133,9 +138,14 @@ public class GravatarController {
                         .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
                         .headers(headers)
                         .body(jpegThumbnail);
+            } else {
+                log.debug("user '{}' not found in directory or user has no image and no fallback specified - returning 404.", uid);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+        } else {
+            log.debug("No uid found for mailHash='{}' - returning 404.", mailHash);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
 

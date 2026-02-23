@@ -86,7 +86,7 @@ class AvatarApplicationTest {
 
     @Test
     void gravatar_request_ok() throws IOException {
-        Mockito.when(gravatarHashMapService.getUidForMailHash(Mockito.anyString())).thenReturn("dummy.user");
+        Mockito.when(gravatarHashMapService.getUidForSha256MailHash(Mockito.anyString())).thenReturn("dummy.user");
         Mockito.when(service.get(Mockito.anyString(), Mockito.any(), Mockito.any()))
                 .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
 
