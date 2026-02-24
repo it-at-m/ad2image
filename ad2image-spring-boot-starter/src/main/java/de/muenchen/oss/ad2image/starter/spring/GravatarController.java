@@ -107,6 +107,7 @@ public class GravatarController {
             @Parameter(hidden = true) @RequestParam(name = "size", required = false) final Integer requestedSizeParam) {
         String requestedDefault = dParam != null ? dParam : defaultParam;
         Integer requestedSize = requestedSParam != null ? requestedSParam : requestedSizeParam;
+        requestedSize = requestedSize == null ? 80 : requestedSize;
         requestedSize = ControllerUtils.getSizeInBounds(requestedSize, 80, 2048);
         log.debug("Incoming gravatar request for mailHash='{}', d='{}', s='{}'", mailHash, requestedDefault, requestedSize);
         Mode resolvedMode = resolveMode(requestedDefault);
