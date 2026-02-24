@@ -22,6 +22,9 @@
  */
 package de.muenchen.oss.ad2image.starter.core;
 
+import java.util.EnumSet;
+import java.util.List;
+
 /**
  * @author michael.prankl
  * @see <a href=
@@ -43,7 +46,7 @@ public enum ImageSize {
     private final String sizeRequestedValue;
     private final int sizePixels;
 
-    private ImageSize(String sizeRequestedValue, int sizePixels) {
+    ImageSize(String sizeRequestedValue, int sizePixels) {
         this.sizeRequestedValue = sizeRequestedValue;
         this.sizePixels = sizePixels;
     }
@@ -58,6 +61,22 @@ public enum ImageSize {
 
     public static ImageSize getAdDefaultImageSize() {
         return ImageSize.HR64;
+    }
+
+    public static ImageSize findNearestSize(int targetSize) {
+        List<ImageSize> sizes = EnumSet.allOf(ImageSize.class).stream().toList();
+        ImageSize nearestSize = sizes.getFirst();
+        int minDifference = Math.abs(targetSize - nearestSize.getSizePixels());
+
+        for (ImageSize size : sizes) {
+            int difference = Math.abs(targetSize - size.getSizePixels());
+            if (difference < minDifference) {
+                minDifference = difference;
+                nearestSize = size;
+            }
+        }
+
+        return nearestSize;
     }
 
 }

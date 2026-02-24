@@ -90,9 +90,9 @@ public class AvatarController {
                     )
             }
     )
-    @GetMapping(value = "avatar", produces = { MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE })
+    @GetMapping(value = "avatar", produces = { MediaType.IMAGE_JPEG_VALUE })
     public ResponseEntity<byte[]> avatar(
-            @Parameter(description = "uid of the user", example = "john.doe", required = true) @RequestParam(required = true) final String uid,
+            @Parameter(description = "uid of the user", example = "john.doe", required = true) @RequestParam final String uid,
             @Parameter(description = "retrieval mode", example = "fallbackGeneric") @RequestParam(
                     name = "m", required = false
             ) final String mode,
@@ -100,13 +100,14 @@ public class AvatarController {
                     description = "image size", schema = @Schema(
                             defaultValue = "64",
                             example = "64",
-                            allowableValues = { "64", "96", "120", "240", "360", "432", "504", "648" }
+                            minimum = "1",
+                            maximum = "2048"
                     )
-            ) @RequestParam(name = "size", required = false, defaultValue = "64") final String requestedSize) {
+            ) @RequestParam(name = "size", required = false, defaultValue = "64") final int requestedSize) {
         log.info("Incoming avatar request for uid='{}', m='{}', size='{}'", uid, mode, requestedSize);
-        ImageSize resolvedSize = resolveSize(requestedSize);
+        int size = ControllerUtils.getSizeInBounds(requestedSize, ImageSize.getAdDefaultImageSize().getSizePixels(), 2048);
         Mode resolvedMode = resolveMode(mode);
-        byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, resolvedSize);
+        byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, size);
         if (jpegThumbnail != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE);
@@ -129,22 +130,6 @@ public class AvatarController {
             }
         }
         return resolvedMode;
-    }
-
-    private ImageSize resolveSize(String requestedSize) {
-        ImageSize resolvedSize = ImageSize.getAdDefaultImageSize();
-        try {
-            Integer requestedSizeInteger = Integer.valueOf(requestedSize);
-            EnumSet<ImageSize> allPossibleSizes = EnumSet.allOf(ImageSize.class);
-            for (ImageSize imageSize : allPossibleSizes) {
-                if (imageSize.getSizePixels() == requestedSizeInteger) {
-                    return imageSize;
-                }
-            }
-        } catch (NumberFormatException e) {
-            log.warn("Could not resolve size parameter value '{}' to a valid ImageSize enum constant, using default size {}.", requestedSize, resolvedSize);
-        }
-        return resolvedSize;
     }
 
 }

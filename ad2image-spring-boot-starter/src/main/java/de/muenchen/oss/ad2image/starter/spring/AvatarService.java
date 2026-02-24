@@ -37,7 +37,7 @@ public class AvatarService {
     }
 
     @Cacheable("avatars")
-    public byte[] get(String uid, Mode mode, ImageSize size) {
+    public byte[] get(String uid, Mode mode, int size) {
         return avatarLoader.loadAvatar(uid, mode, size);
     }
 
