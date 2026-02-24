@@ -78,16 +78,7 @@ Possible modes (`m`):
 - `fallbackGithub`: identical to `github`, but also responds correspondingly if the user itself does not exist in
   AD/Exchange
 
-Possible resolutions (`size`):
-
-- `64` (default)
-- `96`
-- `120`
-- `240`
-- `360`
-- `432`
-- `504`
-- `648`
+Possible resolutions (`size`): between 1 and 2048 pixels
 
 ### Gravatar compatability API endpoint
 
@@ -104,8 +95,7 @@ See [Configuration](#configuration) for more details on how to configure this en
 This endpoint also only supports a subset of the Gravatar API features:
 
 - Default image (`d` query param): only `identicon` and `404` are supported, rest will be ignored
-- Size: can be requested between 1 and 2048px, but ad2image only delivers the nearest picture size available in
-  AD/Exchange (= no scaling, see "possible resolutions")
+- Size: can be requested between 1 and 2048px
 - Force Default (`f`): not supported, will be ignored
 - Rating (`r`): not supported, will be ignored
 

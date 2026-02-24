@@ -22,23 +22,16 @@
  */
 package de.muenchen.oss.ad2image.starter.spring;
 
-import de.muenchen.oss.ad2image.starter.core.Mode;
-import org.springframework.cache.annotation.Cacheable;
+public class ControllerUtils {
 
-import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
-import de.muenchen.oss.ad2image.starter.core.ImageSize;
-
-public class AvatarService {
-
-    private final AvatarLoader avatarLoader;
-
-    public AvatarService(AvatarLoader avatarLoader) {
-        this.avatarLoader = avatarLoader;
-    }
-
-    @Cacheable("avatars")
-    public byte[] get(String uid, Mode mode, int size) {
-        return avatarLoader.loadAvatar(uid, mode, size);
+    public static int getSizeInBounds(int requestedSize, int defaultSize, int maxSize) {
+        int size = defaultSize;
+        if (requestedSize > 0 && requestedSize <= maxSize) {
+            size = requestedSize;
+        } else if (requestedSize > maxSize) {
+            size = maxSize;
+        }
+        return size;
     }
 
 }

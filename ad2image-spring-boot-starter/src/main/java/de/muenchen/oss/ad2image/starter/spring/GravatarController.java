@@ -107,17 +107,9 @@ public class GravatarController {
             @Parameter(hidden = true) @RequestParam(name = "size", required = false) final Integer requestedSizeParam) {
         String requestedDefault = dParam != null ? dParam : defaultParam;
         Integer requestedSize = requestedSParam != null ? requestedSParam : requestedSizeParam;
-        if (requestedSize == null) {
-            requestedSize = 80;
-        }
-        if (requestedSize <= 0) {
-            requestedSize = 80;
-        }
-        if (requestedSize > 2048) {
-            requestedSize = 2048;
-        }
+        requestedSize = requestedSize == null ? 80 : requestedSize;
+        requestedSize = ControllerUtils.getSizeInBounds(requestedSize, 80, 2048);
         log.debug("Incoming gravatar request for mailHash='{}', d='{}', s='{}'", mailHash, requestedDefault, requestedSize);
-        ImageSize resolvedSize = resolveSize(requestedSize);
         Mode resolvedMode = resolveMode(requestedDefault);
         String uid;
         if (mailHash.length() == 64) {
@@ -128,8 +120,8 @@ public class GravatarController {
         if (uid != null) {
             log.info("Incoming gravatar request for mailHash='{}', d='{}' (=> m='{}'), size='{}' - resolved to uid='{}'", mailHash,
                     requestedDefault,
-                    resolvedMode, resolvedSize, uid);
-            byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, resolvedSize);
+                    resolvedMode, requestedSize, uid);
+            byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, requestedSize);
             if (jpegThumbnail != null) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.add(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE);

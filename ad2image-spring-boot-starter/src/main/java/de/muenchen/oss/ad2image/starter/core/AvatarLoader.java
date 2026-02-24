@@ -92,30 +92,49 @@ public class AvatarLoader {
         return avatarBuilders;
     }
 
-    public byte[] loadAvatar(String uid, Mode mode, ImageSize size) {
+    public byte[] loadAvatar(String uid, Mode mode, int size) {
         log.info("Looking up '{}' in AD (mode='{}', size='{}')...", uid, mode, size);
         List<User> users = findPersonInAD(uid);
+        byte[] avatarBytes = null;
         if (users.size() == 1) {
             User user = users.getFirst();
             if (user.getThumbnailPhoto() != null) {
                 // user has stored a picture
-                if (size.equals(ImageSize.getAdDefaultImageSize())) {
+                if (size <= ImageSize.getAdDefaultImageSize().getSizePixels()) {
                     log.debug("Using AD thumbnailPhoto as avatar for '{}'.", uid);
-                    return user.getThumbnailPhoto();
+                    if (size < ImageSize.getAdDefaultImageSize().getSizePixels()) {
+                        try {
+                            avatarBytes = ImageScaler.scaleImage(user.getThumbnailPhoto(), size, size);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to scale image", e);
+                        }
+                    } else {
+                        avatarBytes = user.getThumbnailPhoto();
+                    }
                 } else {
-                    log.debug("Calling Exchange EWS API GetUserPhoto for '{}' with size '{}'.", uid, size);
-                    return getUserPhotoFromExchange(user.getEmail(), size.getSizeRequestedValue());
+                    log.debug("Calling Exchange EWS API GetUserPhoto for mail '{}' with size '{}'.", user.getEmail(),
+                            size);
+                    avatarBytes = getUserPhotoFromExchange(user.getEmail(), size);
                 }
             } else {
-                return generateFallbackAvatar(uid, mode, size);
+                log.debug("User '{}' has no photo stored, computing fallback avatar.", uid);
+                avatarBytes = generateFallbackAvatar(uid, mode, size);
             }
         } else {
-            return generateFallbackAvatar(uid, mode, size);
+            if (users.size() > 1) {
+                log.warn("Found more than one users for '{}' in AD.", uid);
+                avatarBytes = generateFallbackAvatar(uid, mode, size);
+            } else {
+                log.debug("User '{}' not found in AD.", uid);
+                avatarBytes = generateFallbackAvatar(uid, mode, size);
+            }
         }
+        return avatarBytes;
     }
 
-    private byte[] getUserPhotoFromExchange(String email, String size) {
-        String url = this.exchangeBaseUrl + "/s/GetUserPhoto?email=" + email + "&size=" + size;
+    private byte[] getUserPhotoFromExchange(String email, int size) {
+        ImageSize nearestSize = ImageSize.findNearestSize(size);
+        String url = this.exchangeBaseUrl + "/s/GetUserPhoto?email=" + email + "&size=" + nearestSize.getSizeRequestedValue();
 
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -123,7 +142,12 @@ public class AvatarLoader {
         try {
             ResponseEntity<byte[]> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                return responseEntity.getBody();
+                byte[] imageBytes = responseEntity.getBody();
+                if (nearestSize.getSizePixels() != size) {
+                    return ImageScaler.scaleImage(imageBytes, size, size);
+                } else {
+                    return imageBytes;
+                }
             } else {
                 log.warn("Failed to retrieve user photo from Exchange, HTTP status code: {}", responseEntity.getStatusCode());
                 return null;
@@ -131,36 +155,58 @@ public class AvatarLoader {
         } catch (RestClientException e) {
             log.error("Exception while fetching user photo from Exchange.", e);
             return null;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to scale image", e);
         }
     }
 
-    private byte[] generateFallbackAvatar(String uid, Mode mode, ImageSize size) {
-        return switch (mode) {
-        case M_IDENTICON, M_FALLBACK_IDENTICON -> {
+    private byte[] generateFallbackAvatar(String uid, Mode mode, int size) {
+        ImageSize nearestSize = ImageSize.findNearestSize(size);
+        byte[] imageBytes = null;
+        switch (mode) {
+        case M_IDENTICON:
+        case M_FALLBACK_IDENTICON:
             log.debug("Generating identicon fallback avatar for '{}'.", uid);
-            yield identiconAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        }
-        case M_GENERIC, M_FALLBACK_GENERIC -> {
+            imageBytes = identiconAvatarBuilders.get(nearestSize).createAsPngBytes(uid.hashCode());
+            break;
+        case M_GENERIC:
+        case M_FALLBACK_GENERIC:
             log.debug("Using generic fallback avatar for '{}'.", uid);
-            yield getGenericPhoto(size);
-        }
-        case M_TRIANGLE, M_FALLBACK_TRIANGLE -> {
+            imageBytes = getGenericPhoto(nearestSize);
+            break;
+        case M_TRIANGLE:
+        case M_FALLBACK_TRIANGLE:
             log.debug("Generating triangle fallback avatar for '{}'.", uid);
-            yield triangleAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        }
-        case M_SQUARE, M_FALLBACK_SQUARE -> {
+            imageBytes = triangleAvatarBuilders.get(nearestSize).createAsPngBytes(uid.hashCode());
+            break;
+        case M_SQUARE:
+        case M_FALLBACK_SQUARE:
             log.debug("Generating square fallback avatar for '{}'.", uid);
-            yield squareAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        }
-        case M_GITHUB, M_FALLBACK_GITHUB -> {
+            imageBytes = squareAvatarBuilders.get(nearestSize).createAsPngBytes(uid.hashCode());
+            break;
+        case M_GITHUB:
+        case M_FALLBACK_GITHUB:
             log.debug("Generating github fallback avatar for '{}'.", uid);
-            yield githubAvatarBuilders.get(size).createAsPngBytes(uid.hashCode());
-        }
-        default -> {
+            imageBytes = githubAvatarBuilders.get(nearestSize).createAsPngBytes(uid.hashCode());
+            break;
+        default:
             log.debug("No thumbnailPhoto for '{}' found and no fallback specified - returning null.", uid);
-            yield null;
+            break;
         }
-        };
+
+        if (imageBytes == null) {
+            return null;
+        }
+
+        if (nearestSize.getSizePixels() != size) {
+            try {
+                return ImageScaler.scaleImage(imageBytes, size, size);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to scale image", e);
+            }
+        } else {
+            return imageBytes;
+        }
 
     }
 
@@ -195,7 +241,7 @@ public class AvatarLoader {
 
     private byte[] getGenericPhoto(ImageSize size) {
         try {
-            return StreamUtils.copyToByteArray(new ClassPathResource("account_" + size.getSizePixels() + ".png").getInputStream());
+            return StreamUtils.copyToByteArray(new ClassPathResource("account.png").getInputStream());
         } catch (IOException e) {
             log.error("IOException while reading generic image.", e);
             throw new RuntimeException("IOException while reading generic image.", e);
