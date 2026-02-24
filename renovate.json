@@ -2,5 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":automergeMinor"],
   "automergeType": "branch",
-  "labels": ["dependencies"]
+  "labels": ["dependencies"],
+  "maven": {
+      "ignoreDeps": [
+        {
+          "groupId": "com.diffplug.spotless",
+          "artifactId": "spotless-maven-plugin"
+        }
+      ]
+    }
 }

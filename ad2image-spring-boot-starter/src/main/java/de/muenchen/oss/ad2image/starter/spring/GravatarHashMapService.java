@@ -49,6 +49,7 @@ public class GravatarHashMapService {
     private final Ad2ImageConfigurationProperties ad2ImageConfigurationProperties;
 
     private final Map<String, String> emailSha256HashToUidCache = new ConcurrentHashMap<>();
+    private final Map<String, String> emailMd5HashToUidCache = new ConcurrentHashMap<>();
     private volatile boolean initialized = false;
 
     public GravatarHashMapService(LdapContextSource contextSource, Ad2ImageConfigurationProperties ad2ImageConfigurationProperties) {
@@ -60,16 +61,19 @@ public class GravatarHashMapService {
 
     private void populateMap() {
         // Simulate time-consuming cache population
-        log.info("Populating SHA256-hashed email-to-uid map...");
+        log.info("Populating hashed email-to-uid maps...");
         updateMap();
         initialized = true;
-        log.info("SHA256-hashed email-to-uid map populated.");
+        log.info("Hashed email-to-uid maps populated.");
     }
 
     private void updateMap() {
         this.findAllPersons().stream().forEach(person -> {
-            String sha256Hex = DigestUtils.sha256Hex(person.getEmail());
+            String trimmedMailLowercase = person.getEmail().trim().toLowerCase();
+            String sha256Hex = DigestUtils.sha256Hex(trimmedMailLowercase);
             emailSha256HashToUidCache.put(sha256Hex.toLowerCase(), person.getUid());
+            String md5Hex = DigestUtils.md5Hex(trimmedMailLowercase);
+            emailMd5HashToUidCache.put(md5Hex.toLowerCase(), person.getUid());
         });
     }
 
@@ -113,14 +117,21 @@ public class GravatarHashMapService {
         if (!initialized) {
             return; // Don't update if not initialized
         }
-        log.info("Starting scheduled update of sha256-mail-addresses-hashes map...");
+        log.info("Starting scheduled update of mail-addresses-hashes map...");
         updateMap();
     }
 
-    public String getUidForMailHash(String sha256MailHash) {
+    public String getUidForSha256MailHash(String sha256MailHash) {
         if (!initialized) {
             return null;
         }
         return emailSha256HashToUidCache.get(sha256MailHash);
+    }
+
+    public String getUidForMd5MailHash(String md5MailHash) {
+        if (!initialized) {
+            return null;
+        }
+        return emailMd5HashToUidCache.get(md5MailHash);
     }
 }

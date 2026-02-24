@@ -86,11 +86,12 @@ class AvatarApplicationTest {
 
     @Test
     void gravatar_request_ok() throws IOException {
-        Mockito.when(gravatarHashMapService.getUidForMailHash(Mockito.anyString())).thenReturn("dummy.user");
+        Mockito.when(gravatarHashMapService.getUidForSha256MailHash(Mockito.anyString())).thenReturn("dummy.user");
         Mockito.when(service.get(Mockito.anyString(), Mockito.any(), Mockito.any()))
                 .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
 
-        ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:" + port + "/gravatar/000000000", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "http://localhost:" + port + "/gravatar/963dd12f8d2f181ee9bef66a67f7b3bd87f47e9e3ecc5b534c85766b227daa28", String.class);
         Assertions.assertThat(response.getStatusCode().value()).isEqualTo(200);
 
         Mockito.verify(service).get("dummy.user", Mode.M_FALLBACK_GENERIC, ImageSize.HR64);
