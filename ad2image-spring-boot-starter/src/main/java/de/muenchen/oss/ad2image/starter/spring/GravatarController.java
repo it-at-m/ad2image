@@ -81,13 +81,13 @@ public class GravatarController {
     @GetMapping(value = "gravatar/{mailhash}", produces = { MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE })
     public ResponseEntity<byte[]> avatar(
             @Parameter(
-                    description = "<a href=\"https://docs.gravatar.com/rest/hash/\">SHA256 hash</a> of a users email address",
+                    description = "<a href=\"https://docs.gravatar.com/rest/hash/\">SHA256 hash</a> of a users email address (MD5 is also accepted but DEPRECATED)",
                     required = true
             ) @PathVariable(name = "mailhash") String mailHash,
             @Parameter(
                     description = "default when user has no image", schema = @Schema(
-                    allowableValues = { "404", "identicon" }
-            )
+                            allowableValues = { "404", "identicon" }
+                    )
             ) @RequestParam(
                     name = "d", required = false
             ) final String dParam,
@@ -128,7 +128,7 @@ public class GravatarController {
         if (uid != null) {
             log.info("Incoming gravatar request for mailHash='{}', d='{}' (=> m='{}'), size='{}' - resolved to uid='{}'", mailHash,
                     requestedDefault,
-                    resolvedSize, resolvedMode, uid);
+                    resolvedMode, resolvedSize, uid);
             byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, resolvedSize);
             if (jpegThumbnail != null) {
                 HttpHeaders headers = new HttpHeaders();
