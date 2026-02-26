@@ -174,6 +174,11 @@ public class AvatarLoader {
             log.debug("Using generic fallback avatar for '{}'.", uid);
             imageBytes = getGenericPhoto(nearestSize);
             break;
+        case M_GENERIC_DARK:
+        case M_FALLBACK_GENERIC_DARK:
+            log.debug("Using generic dark fallback avatar for '{}'.", uid);
+            imageBytes = getGenericDarkPhoto(nearestSize);
+            break;
         case M_TRIANGLE:
         case M_FALLBACK_TRIANGLE:
             log.debug("Generating triangle fallback avatar for '{}'.", uid);
@@ -245,6 +250,15 @@ public class AvatarLoader {
         } catch (IOException e) {
             log.error("IOException while reading generic image.", e);
             throw new RuntimeException("IOException while reading generic image.", e);
+        }
+    }
+
+    private byte[] getGenericDarkPhoto(ImageSize size) {
+        try {
+            return StreamUtils.copyToByteArray(new ClassPathResource("account_dark.png").getInputStream());
+        } catch (IOException e) {
+            log.error("IOException while reading generic dark image.", e);
+            throw new RuntimeException("IOException while reading generic dark image.", e);
         }
     }
 

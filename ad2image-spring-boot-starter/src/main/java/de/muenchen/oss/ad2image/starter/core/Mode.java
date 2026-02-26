@@ -30,6 +30,8 @@ public enum Mode {
     M_FALLBACK_GITHUB("fallbackGithub"),
     M_GENERIC("generic"),
     M_FALLBACK_GENERIC("fallbackGeneric"),
+    M_GENERIC_DARK("genericDark"),
+    M_FALLBACK_GENERIC_DARK("fallbackGenericDark"),
     M_TRIANGLE("triangle"),
     M_FALLBACK_TRIANGLE("fallbackTriangle"),
     M_SQUARE("square"),
