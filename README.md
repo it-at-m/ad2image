@@ -62,6 +62,10 @@ Possible modes (`m`):
   the user has no photo stored in AD/Exchange
 - `fallbackGeneric`: **default** - identical to `generic`, but also responds with an generic placeholder icon if the
   user itself does not exist in AD/Exchange
+- `genericDark`: renders a [generic placeholder icon with white foreground](ad2image-spring-boot-starter/src/main/resources/account_dark.png) (for dark mode applications), if
+  the user has no photo stored in AD/Exchange
+- `fallbackGenericDark`: identical to `genericDark`, but also responds with a generic placeholder icon with white foreground if the
+  user itself does not exist in AD/Exchange
 - `triangle`: renders
   an [randomly generated Avatar based on triangles](https://raw.githubusercontent.com/gabrie-allaigre/avatar-generator/master/doc/triangle1.png),
   if the user has no photo stored in AD/Exchange

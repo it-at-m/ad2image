@@ -119,6 +119,22 @@ class AvatarLoaderTest {
         assertThat(loadAvatar).isNull();
     }
 
+    @Test
+    void generic_dark_mode() throws IOException {
+        String uid = "test.user";
+        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_GENERIC_DARK, ImageSize.HR648.getSizePixels());
+        assertThat(loadAvatar).isNotEmpty();
+        Files.write(new File("target/generic_dark_648.png").toPath(), loadAvatar);
+    }
+
+    @Test
+    void fallback_generic_dark_mode() throws IOException {
+        String uid = "nophoto.user";
+        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_FALLBACK_GENERIC_DARK, ImageSize.HR648.getSizePixels());
+        assertThat(loadAvatar).isNotEmpty();
+        Files.write(new File("target/fallback_generic_dark_648.png").toPath(), loadAvatar);
+    }
+
     @BeforeEach
     public void setup() {
         AdConfigurationProperties adConf = new AdConfigurationProperties();
