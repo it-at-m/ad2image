@@ -22,6 +22,8 @@
  */
 package de.muenchen.oss.ad2image.starter.spring;
 
+import de.muenchen.oss.ad2image.starter.core.DirectoryLookupService;
+import de.muenchen.oss.ad2image.starter.core.EwsUserPhotoService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -38,7 +40,7 @@ import org.springframework.ldap.core.support.LdapContextSource;
 
 import de.muenchen.oss.ad2image.starter.core.Ad2ImageConfigurationProperties;
 import de.muenchen.oss.ad2image.starter.core.AdConfigurationProperties;
-import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
+import de.muenchen.oss.ad2image.starter.core.AvatarGenerator;
 import de.muenchen.oss.ad2image.starter.core.ExchangeConfigurationProperties;
 
 @AutoConfiguration
@@ -54,15 +56,28 @@ public class Ad2ImageAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    AvatarService avatarService(AvatarLoader avatarLoader) {
-        return new AvatarService(avatarLoader);
+    AvatarService avatarService(AvatarGenerator avatarGenerator, DirectoryLookupService directoryLookupService, EwsUserPhotoService ewsUserPhotoService) {
+        return new AvatarService(avatarGenerator, directoryLookupService, ewsUserPhotoService);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    AvatarLoader avatarLoader(@Qualifier("ad2ImageLdapTemplate") LdapTemplate ad2ImageLdapTemplate, RestTemplateBuilder restTemplateBuilder,
+    AvatarGenerator avatarGenerator() {
+        return new AvatarGenerator();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    DirectoryLookupService directoryLookupService(@Qualifier("ad2ImageLdapTemplate") LdapTemplate ad2ImageLdapTemplate,
             Ad2ImageConfigurationProperties ad2ImageProps) {
-        return new AvatarLoader(ad2ImageLdapTemplate, restTemplateBuilder, ad2ImageProps.getAd(), ad2ImageProps.getEws());
+        return new DirectoryLookupService(ad2ImageLdapTemplate, ad2ImageProps.getAd());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    EwsUserPhotoService ewsUserPhotoService(RestTemplateBuilder restTemplateBuilder,
+            Ad2ImageConfigurationProperties ad2ImageProps) {
+        return new EwsUserPhotoService(ad2ImageProps.getEws(), restTemplateBuilder);
     }
 
     @Bean

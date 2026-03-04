@@ -29,10 +29,9 @@ import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 import de.muenchen.oss.ad2image.starter.core.AdConfigurationProperties;
-import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
+import de.muenchen.oss.ad2image.starter.core.AvatarGenerator;
 import de.muenchen.oss.ad2image.starter.core.ExchangeConfigurationProperties;
 import de.muenchen.oss.ad2image.starter.core.ImageSize;
 import de.muenchen.oss.ad2image.starter.core.Mode;
@@ -58,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author michael.prankl
  *
  */
-class AvatarLoaderTest {
+class AvatarGeneratorTest {
 
     @RegisterExtension
     static WireMockExtension wm1 = WireMockExtension.newInstance()
@@ -66,12 +65,12 @@ class AvatarLoaderTest {
             .build();
 
     private static InMemoryDirectoryServer server;
-    private AvatarLoader sut;
+    private AvatarGenerator sut;
 
     @Test
     void default_size_from_ad() throws IOException {
         String uid = "maxi.mustermann";
-        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_IDENTICON, ImageSize.getAdDefaultImageSize().getSizePixels());
+        byte[] loadAvatar = sut.generateAvatar(uid, AvatarGenerator.AvatarType.IDENTICON, ImageSize.getAdDefaultImageSize().getSizePixels());
         assertThat(loadAvatar).isNotEmpty();
         Files.write(new File("target/" + uid + "_64.jpg").toPath(), loadAvatar);
     }
@@ -153,7 +152,7 @@ class AvatarLoaderTest {
         source.afterPropertiesSet();
         LdapTemplate ldapTemplate = new LdapTemplate(source);
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-        sut = new AvatarLoader(ldapTemplate, restTemplateBuilder, adConf, exchangeConf);
+        sut = new AvatarGenerator(ldapTemplate, restTemplateBuilder, adConf, exchangeConf);
     }
 
     @BeforeAll

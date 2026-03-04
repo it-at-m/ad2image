@@ -23,6 +23,7 @@
 package de.muenchen.oss.ad2image.starter.spring;
 
 import de.muenchen.oss.ad2image.starter.core.Ad2ImageConfigurationProperties;
+import de.muenchen.oss.ad2image.starter.core.AvatarGenerator;
 import de.muenchen.oss.ad2image.starter.core.ImageSize;
 import de.muenchen.oss.ad2image.starter.core.Mode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,13 +56,13 @@ public class GravatarController {
     private static final Logger log = LoggerFactory.getLogger(GravatarController.class);
 
     private final AvatarService avatarService;
-    private final Ad2ImageConfigurationProperties confProps;
+    private final AvatarGenerator avatarGenerator;
     private final GravatarHashMapService gravatarHashMapService;
 
-    public GravatarController(AvatarService avatarService, Ad2ImageConfigurationProperties confProps, GravatarHashMapService gravatarHashMapService) {
+    public GravatarController(AvatarService avatarService, AvatarGenerator avatarGenerator, GravatarHashMapService gravatarHashMapService) {
         super();
         this.avatarService = avatarService;
-        this.confProps = confProps;
+        this.avatarGenerator = avatarGenerator;
         this.gravatarHashMapService = gravatarHashMapService;
     }
 
@@ -70,7 +71,7 @@ public class GravatarController {
             value = {
                     @ApiResponse(
                             responseCode = "200", description = "Successful operation",
-                            content = { @Content(mediaType = "image/jpeg"), @Content(mediaType = "image/png") }
+                            content = { @Content(mediaType = MediaType.IMAGE_PNG_VALUE) }
                     ),
                     @ApiResponse(
                             responseCode = "404", description = "User not found or user has no image",
@@ -78,7 +79,7 @@ public class GravatarController {
                     )
             }
     )
-    @GetMapping(value = "gravatar/{mailhash}", produces = { MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE })
+    @GetMapping(value = "gravatar/{mailhash}", produces = { MediaType.IMAGE_PNG_VALUE })
     public ResponseEntity<byte[]> avatar(
             @Parameter(
                     description = "<a href=\"https://docs.gravatar.com/rest/hash/\">SHA256 hash</a> of a users email address (MD5 is also accepted but DEPRECATED)",
@@ -117,32 +118,40 @@ public class GravatarController {
         } else {
             uid = gravatarHashMapService.getUidForMd5MailHash(mailHash.toLowerCase());
         }
+        byte[] photoBytes;
         if (uid != null) {
             log.info("Incoming gravatar request for mailHash='{}', d='{}' (=> m='{}'), size='{}' - resolved to uid='{}'", mailHash,
                     requestedDefault,
                     resolvedMode, requestedSize, uid);
-            byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, requestedSize);
-            if (jpegThumbnail != null) {
-                HttpHeaders headers = new HttpHeaders();
-                headers.add(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE);
-                return ResponseEntity.ok()
-                        // let the browser cache the avatar
-                        .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
-                        .headers(headers)
-                        .body(jpegThumbnail);
-            } else {
+            photoBytes = avatarService.get(uid, resolvedMode, requestedSize);
+            if (photoBytes == null) {
                 log.debug("user '{}' not found in directory or user has no image and no fallback specified - returning 404.", uid);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } else {
-            log.debug("No uid found for mailHash='{}' - returning 404.", mailHash);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            log.debug("No uid found for mailHash='{}'.", mailHash);
+            if (resolvedMode.equals(Mode.M_404)) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                if (resolvedMode.equals(Mode.M_FALLBACK_GENERIC)) {
+                    photoBytes = avatarGenerator.generateAvatar(mailHash, AvatarGenerator.AvatarType.GENERIC, requestedSize);
+                } else {
+                    photoBytes = avatarGenerator.generateAvatar(mailHash, AvatarGenerator.AvatarType.IDENTICON, requestedSize);
+                }
+            }
         }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE);
+        return ResponseEntity.ok()
+                // let the browser cache the avatar
+                .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
+                .headers(headers)
+                .body(photoBytes);
 
     }
 
     private Mode resolveMode(String defaultParam) {
-        Mode resolvedMode = confProps.getDefaultMode();
+        Mode resolvedMode = Mode.M_FALLBACK_GENERIC;
         if (defaultParam == null) {
             return resolvedMode;
         }
@@ -152,34 +161,6 @@ public class GravatarController {
             return Mode.M_FALLBACK_IDENTICON;
         }
         return resolvedMode;
-    }
-
-    private ImageSize resolveSize(Integer requestedSizeInteger) {
-        ImageSize adDefaultImageSize = ImageSize.getAdDefaultImageSize();
-        EnumSet<ImageSize> allPossibleSizes = EnumSet.allOf(ImageSize.class);
-        List<Integer> allPossibleSizesList = allPossibleSizes.stream().map(ImageSize::getSizePixels).toList();
-        int nearestSize = findNearestSize(allPossibleSizesList, requestedSizeInteger);
-        for (ImageSize imageSize : allPossibleSizes) {
-            if (imageSize.getSizePixels() == nearestSize) {
-                return imageSize;
-            }
-        }
-        return adDefaultImageSize;
-    }
-
-    private static int findNearestSize(List<Integer> sizes, int targetSize) {
-        int nearestSize = sizes.getFirst();
-        int minDifference = Math.abs(targetSize - nearestSize);
-
-        for (int size : sizes) {
-            int difference = Math.abs(targetSize - size);
-            if (difference < minDifference) {
-                minDifference = difference;
-                nearestSize = size;
-            }
-        }
-
-        return nearestSize;
     }
 
 }

@@ -22,23 +22,114 @@
  */
 package de.muenchen.oss.ad2image.starter.spring;
 
+import de.muenchen.oss.ad2image.starter.core.DirectoryLookupService;
+import de.muenchen.oss.ad2image.starter.core.EwsUserPhotoService;
+import de.muenchen.oss.ad2image.starter.core.ImageScaler;
+import de.muenchen.oss.ad2image.starter.core.ImageSize;
 import de.muenchen.oss.ad2image.starter.core.Mode;
+import de.muenchen.oss.ad2image.starter.core.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 
-import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
-import de.muenchen.oss.ad2image.starter.core.ImageSize;
+import de.muenchen.oss.ad2image.starter.core.AvatarGenerator;
+
+import java.io.IOException;
+import java.util.Optional;
+
+import static de.muenchen.oss.ad2image.starter.core.Mode.M_FALLBACK_GENERIC;
+import static de.muenchen.oss.ad2image.starter.core.Mode.M_FALLBACK_GENERIC_DARK;
+import static de.muenchen.oss.ad2image.starter.core.Mode.M_FALLBACK_GITHUB;
+import static de.muenchen.oss.ad2image.starter.core.Mode.M_FALLBACK_IDENTICON;
+import static de.muenchen.oss.ad2image.starter.core.Mode.M_FALLBACK_SQUARE;
+import static de.muenchen.oss.ad2image.starter.core.Mode.M_FALLBACK_TRIANGLE;
+import static de.muenchen.oss.ad2image.starter.core.Mode.M_GITHUB;
+import static de.muenchen.oss.ad2image.starter.core.Mode.M_SQUARE;
 
 public class AvatarService {
 
-    private final AvatarLoader avatarLoader;
+    private static final Logger log = LoggerFactory.getLogger(AvatarService.class);
 
-    public AvatarService(AvatarLoader avatarLoader) {
-        this.avatarLoader = avatarLoader;
+    private final AvatarGenerator avatarGenerator;
+    private final DirectoryLookupService directoryLookupService;
+    private final EwsUserPhotoService ewsUserPhotoService;
+
+    public AvatarService(AvatarGenerator avatarGenerator, DirectoryLookupService directoryLookupService, EwsUserPhotoService ewsUserPhotoService) {
+        this.avatarGenerator = avatarGenerator;
+        this.directoryLookupService = directoryLookupService;
+        this.ewsUserPhotoService = ewsUserPhotoService;
     }
 
     @Cacheable("avatars")
     public byte[] get(String uid, Mode mode, int size) {
-        return avatarLoader.loadAvatar(uid, mode, size);
+        byte[] avatarBytes = null;
+        Optional<User> userInDirectory = directoryLookupService.findUserInDirectory(uid);
+        if (userInDirectory.isPresent()) {
+            User user = userInDirectory.get();
+            if (user.getThumbnailPhoto() != null) {
+                // user has stored a picture
+                if (size <= ImageSize.getAdDefaultImageSize().getSizePixels()) {
+                    log.debug("Using AD thumbnailPhoto as avatar for '{}'.", uid);
+                    if (size < ImageSize.getAdDefaultImageSize().getSizePixels()) {
+                        try {
+                            avatarBytes = ImageScaler.scaleImage(user.getThumbnailPhoto(), size, size);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to scale image", e);
+                        }
+                    } else {
+                        avatarBytes = user.getThumbnailPhoto();
+                    }
+                } else {
+                    log.debug("Calling Exchange EWS API GetUserPhoto for mail '{}' with size '{}'.", user.getEmail(),
+                            size);
+                    ImageSize nearestSize = ImageSize.findNearestSize(size);
+                    avatarBytes = ewsUserPhotoService.getUserPhotoFromExchange(user.getEmail(), nearestSize);
+                    if (nearestSize.getSizePixels() != size) {
+                        try {
+                            avatarBytes = ImageScaler.scaleImage(avatarBytes, size, size);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to scale image", e);
+                        }
+                    }
+                }
+            } else {
+                if (mode == Mode.M_404) {
+                    log.debug("User '{}' has no photo stored and mode=404, returning null as photo", uid);
+                    return null;
+                } else {
+                    AvatarGenerator.AvatarType avatarType = getAvatarType(mode);
+                    log.debug("User '{}' has no photo stored, computing fallback avatar with type {}...", uid, avatarType);
+                    avatarBytes = avatarGenerator.generateAvatar(uid, avatarType, size);
+                }
+            }
+        } else {
+            if (mode == M_FALLBACK_GITHUB
+                    || mode == M_FALLBACK_SQUARE
+                    || mode == M_FALLBACK_GENERIC
+                    || mode == M_FALLBACK_GENERIC_DARK
+                    || mode == M_FALLBACK_IDENTICON
+                    || mode == M_FALLBACK_TRIANGLE) {
+                AvatarGenerator.AvatarType avatarType = getAvatarType(mode);
+                log.debug("User '{} does not exist in AD, computing fallback avatar with type {}...'", uid, avatarType);
+                avatarBytes = avatarGenerator.generateAvatar(uid, avatarType, size);
+            } else {
+                log.debug("User '{}' does not exist in AD and no fallback mode requested, returning null as photo", uid);
+                return null;
+            }
+        }
+        return avatarBytes;
+    }
+
+    private AvatarGenerator.AvatarType getAvatarType(Mode mode) {
+        AvatarGenerator.AvatarType type = switch (mode) {
+        case M_GENERIC_DARK, M_FALLBACK_GENERIC_DARK -> AvatarGenerator.AvatarType.GENERIC_DARK;
+        case M_IDENTICON, M_FALLBACK_IDENTICON -> AvatarGenerator.AvatarType.IDENTICON;
+        case M_SQUARE, M_FALLBACK_SQUARE -> AvatarGenerator.AvatarType.SQUARE;
+        case M_TRIANGLE, M_FALLBACK_TRIANGLE -> AvatarGenerator.AvatarType.TRIANGLE;
+        case M_GITHUB, M_FALLBACK_GITHUB -> AvatarGenerator.AvatarType.GITHUB;
+        default -> AvatarGenerator.AvatarType.GENERIC;
+        };
+        return type;
     }
 
 }

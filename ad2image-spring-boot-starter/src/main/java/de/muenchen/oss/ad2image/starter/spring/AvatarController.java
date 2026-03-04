@@ -38,7 +38,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import de.muenchen.oss.ad2image.starter.core.AvatarLoader;
 import de.muenchen.oss.ad2image.starter.core.ImageSize;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -82,7 +81,7 @@ public class AvatarController {
             value = {
                     @ApiResponse(
                             responseCode = "200", description = "Successful operation",
-                            content = { @Content(mediaType = "image/jpeg"), @Content(mediaType = "image/png") }
+                            content = { @Content(mediaType = "image/png") }
                     ),
                     @ApiResponse(
                             responseCode = "404", description = "User not found or user has no avatar image",
@@ -90,7 +89,7 @@ public class AvatarController {
                     )
             }
     )
-    @GetMapping(value = "avatar", produces = { MediaType.IMAGE_JPEG_VALUE })
+    @GetMapping(value = "avatar", produces = { MediaType.IMAGE_PNG_VALUE })
     public ResponseEntity<byte[]> avatar(
             @Parameter(description = "uid of the user", example = "john.doe", required = true) @RequestParam final String uid,
             @Parameter(description = "retrieval mode", example = "fallbackGeneric") @RequestParam(
@@ -110,7 +109,7 @@ public class AvatarController {
         byte[] jpegThumbnail = avatarService.get(uid, resolvedMode, size);
         if (jpegThumbnail != null) {
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE);
+            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE);
             return ResponseEntity.ok()
                     // let the browser cache the avatar
                     .cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS))
