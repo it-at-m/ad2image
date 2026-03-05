@@ -110,4 +110,44 @@ class AvatarApplicationTest {
         Mockito.verify(service).get("dummy.user", Mode.M_FALLBACK_GENERIC, 80);
     }
 
+    @Test
+    void gravatar_request_with_mp_parameter() throws IOException {
+        Mockito.when(gravatarHashMapService.getUidForSha256MailHash(Mockito.anyString())).thenReturn("dummy.user");
+        Mockito.when(service.get(Mockito.anyString(), Mockito.any(), Mockito.anyInt()))
+                .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
+
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "http://localhost:" + port + "/gravatar/963dd12f8d2f181ee9bef66a67f7b3bd87f47e9e3ecc5b534c85766b227daa28?d=mp", String.class);
+        Assertions.assertThat(response.getStatusCode().value()).isEqualTo(200);
+
+        Mockito.verify(service).get("dummy.user", Mode.M_FALLBACK_GENERIC, 80);
+    }
+
+    @Test
+    void gravatar_request_with_identicon_parameter() throws IOException {
+        Mockito.when(gravatarHashMapService.getUidForSha256MailHash(Mockito.anyString())).thenReturn("dummy.user");
+        Mockito.when(service.get(Mockito.anyString(), Mockito.any(), Mockito.anyInt()))
+                .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
+
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "http://localhost:" + port + "/gravatar/963dd12f8d2f181ee9bef66a67f7b3bd87f47e9e3ecc5b534c85766b227daa28?d=identicon", String.class);
+        Assertions.assertThat(response.getStatusCode().value()).isEqualTo(200);
+
+        Mockito.verify(service).get("dummy.user", Mode.M_FALLBACK_IDENTICON, 80);
+    }
+
+    @Test
+    void gravatar_request_with_unsupported_default_parameter() throws IOException {
+        Mockito.when(gravatarHashMapService.getUidForSha256MailHash(Mockito.anyString())).thenReturn("dummy.user");
+        Mockito.when(service.get(Mockito.anyString(), Mockito.any(), Mockito.anyInt()))
+                .thenReturn(Files.readAllBytes(new ClassPathResource("account_dummy.png").getFile().toPath()));
+
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "http://localhost:" + port + "/gravatar/963dd12f8d2f181ee9bef66a67f7b3bd87f47e9e3ecc5b534c85766b227daa28?d=monsterid", String.class);
+        Assertions.assertThat(response.getStatusCode().value()).isEqualTo(200);
+
+        // Should fall back to gravatar default mode (M_FALLBACK_GENERIC)
+        Mockito.verify(service).get("dummy.user", Mode.M_FALLBACK_GENERIC, 80);
+    }
+
 }
