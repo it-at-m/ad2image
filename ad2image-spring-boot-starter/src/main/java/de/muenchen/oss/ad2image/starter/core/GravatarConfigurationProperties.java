@@ -54,6 +54,13 @@ public class GravatarConfigurationProperties {
      */
     private Integer pageSize = 500;
 
+    /**
+     * Default mode for Gravatar API when the requested 'd=' parameter is unsupported or missing.
+     * This is independent from the main avatar API's default mode setting.
+     * Defaults to M_FALLBACK_GENERIC (mystery person).
+     */
+    private Mode defaultMode = Mode.M_FALLBACK_GENERIC;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -84,5 +91,13 @@ public class GravatarConfigurationProperties {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Mode getDefaultMode() {
+        return defaultMode;
+    }
+
+    public void setDefaultMode(Mode defaultMode) {
+        this.defaultMode = defaultMode;
     }
 }
