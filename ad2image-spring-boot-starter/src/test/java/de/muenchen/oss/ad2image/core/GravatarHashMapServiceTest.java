@@ -78,7 +78,7 @@ class GravatarHashMapServiceTest {
 
     @BeforeAll
     public static void startup() throws Exception {
-        server = AvatarGeneratorTest.ldapServer();
+        server = DirectoryLookupServiceTest.ldapServer();
     }
 
 }

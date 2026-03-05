@@ -22,35 +22,14 @@
  */
 package de.muenchen.oss.ad2image.core;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.unboundid.ldap.listener.InMemoryDirectoryServer;
-import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
-import com.unboundid.ldap.listener.InMemoryListenerConfig;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldif.LDIFReader;
-import de.muenchen.oss.ad2image.starter.core.AdConfigurationProperties;
 import de.muenchen.oss.ad2image.starter.core.AvatarGenerator;
-import de.muenchen.oss.ad2image.starter.core.ExchangeConfigurationProperties;
 import de.muenchen.oss.ad2image.starter.core.ImageSize;
-import de.muenchen.oss.ad2image.starter.core.Mode;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.boot.restclient.RestTemplateBuilder;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.core.support.LdapContextSource;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -59,16 +38,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class AvatarGeneratorTest {
 
-    @RegisterExtension
-    static WireMockExtension wm1 = WireMockExtension.newInstance()
-            .options(WireMockConfiguration.wireMockConfig().dynamicPort())
-            .build();
-
-    private static InMemoryDirectoryServer server;
-    private AvatarGenerator sut;
+    private AvatarGenerator sut = new AvatarGenerator();
 
     @Test
-    void default_size_from_ad() throws IOException {
+    void default_size_identicon() throws IOException {
         String uid = "maxi.mustermann";
         byte[] loadAvatar = sut.generateAvatar(uid, AvatarGenerator.AvatarType.IDENTICON, ImageSize.getAdDefaultImageSize().getSizePixels());
         assertThat(loadAvatar).isNotEmpty();
@@ -76,105 +49,35 @@ class AvatarGeneratorTest {
     }
 
     @Test
-    void smaller_than_default_size_from_ad() throws IOException {
+    void smaller_than_default_size_identicon() throws IOException {
         String uid = "maxi.mustermann";
-        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_IDENTICON, 32);
+        byte[] loadAvatar = sut.generateAvatar(uid, AvatarGenerator.AvatarType.IDENTICON, 32);
         assertThat(loadAvatar).isNotEmpty();
         Files.write(new File("target/" + uid + "_32.jpg").toPath(), loadAvatar);
     }
 
     @Test
-    void bigger_size_from_ews() throws IOException {
-        wm1.stubFor(get(urlPathEqualTo("/s/GetUserPhoto"))
-                .withHeader("Authorization", WireMock.containing("Basic"))
-                .willReturn(
-                        ok().withBodyFile("account_dummy.png")));
+    void bigger_size_identicon() throws IOException {
         String uid = "maxi.mustermann";
-        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_IDENTICON, ImageSize.HR648.getSizePixels());
+        byte[] loadAvatar = sut.generateAvatar(uid, AvatarGenerator.AvatarType.IDENTICON, 648);
         assertThat(loadAvatar).isNotEmpty();
         Files.write(new File("target/" + uid + "_648.jpg").toPath(), loadAvatar);
     }
 
     @Test
-    void no_user_fallbackIdenticon() throws IOException {
-        String uid = "dengibtsned.imad";
-        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_FALLBACK_GENERIC, ImageSize.HR648.getSizePixels());
-        assertThat(loadAvatar).isNotEmpty();
-        Files.write(new File("target/" + uid + "_648.png").toPath(), loadAvatar);
-    }
-
-    @Test
-    void user_without_picture_fallback() throws IOException {
-        String uid = "nophoto.user";
-        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_FALLBACK_GENERIC, ImageSize.HR648.getSizePixels());
-        assertThat(loadAvatar).isNotEmpty();
-        Files.write(new File("target/" + uid + "_648.png").toPath(), loadAvatar);
-    }
-
-    @Test
-    void user_without_picture_no_fallback() throws IOException {
-        String uid = "nophoto.user";
-        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_404, ImageSize.HR648.getSizePixels());
-        assertThat(loadAvatar).isNull();
-    }
-
-    @Test
     void generic_dark_mode() throws IOException {
         String uid = "test.user";
-        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_GENERIC_DARK, ImageSize.HR648.getSizePixels());
+        byte[] loadAvatar = sut.generateAvatar(uid, AvatarGenerator.AvatarType.GENERIC_DARK, ImageSize.HR648.getSizePixels());
         assertThat(loadAvatar).isNotEmpty();
         Files.write(new File("target/generic_dark_648.png").toPath(), loadAvatar);
     }
 
     @Test
-    void fallback_generic_dark_mode() throws IOException {
-        String uid = "nophoto.user";
-        byte[] loadAvatar = sut.loadAvatar(uid, Mode.M_FALLBACK_GENERIC_DARK, ImageSize.HR648.getSizePixels());
+    void generic() throws IOException {
+        String uid = "test.user";
+        byte[] loadAvatar = sut.generateAvatar(uid, AvatarGenerator.AvatarType.GENERIC, ImageSize.HR648.getSizePixels());
         assertThat(loadAvatar).isNotEmpty();
-        Files.write(new File("target/fallback_generic_dark_648.png").toPath(), loadAvatar);
-    }
-
-    @BeforeEach
-    public void setup() {
-        AdConfigurationProperties adConf = new AdConfigurationProperties();
-        adConf.setUrl("ldap://localhost:" + server.getListenPort());
-        adConf.setUserDn("");
-        adConf.setPassword("");
-        adConf.setUserSearchBase("ou=Users,dc=example,dc=com");
-        ExchangeConfigurationProperties exchangeConf = new ExchangeConfigurationProperties();
-        exchangeConf.setEwsServiceUrl(wm1.getRuntimeInfo().getHttpBaseUrl());
-        exchangeConf.setUsername("aDummyUsername");
-        exchangeConf.setPassword("aDummyPassword");
-        LdapContextSource source = new LdapContextSource();
-        source.setUrl(adConf.getUrl());
-        source.setUserDn(adConf.getUserDn());
-        source.setPassword(adConf.getPassword());
-        source.afterPropertiesSet();
-        LdapTemplate ldapTemplate = new LdapTemplate(source);
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-        sut = new AvatarGenerator(ldapTemplate, restTemplateBuilder, adConf, exchangeConf);
-    }
-
-    @BeforeAll
-    public static void startup() throws Exception {
-        server = ldapServer();
-    }
-
-    public static InMemoryDirectoryServer ldapServer() throws LDAPException, IOException {
-        final InMemoryListenerConfig listenerConfig = InMemoryListenerConfig.createLDAPConfig(
-                "default", 0);
-        final InMemoryDirectoryServerConfig c = new InMemoryDirectoryServerConfig(
-                "dc=example,dc=com");
-        c.setListenerConfigs(listenerConfig);
-        c.setEnforceAttributeSyntaxCompliance(false);
-        c.setEnforceSingleStructuralObjectClass(false);
-        c.setSchema(null); // schema compliance not needed for testing
-        final InMemoryDirectoryServer inMemoryDirectoryServer = new InMemoryDirectoryServer(c);
-        inMemoryDirectoryServer.startListening();
-        final ClassPathResource sf2LdifResource = new ClassPathResource("simple.ldif");
-        final LDIFReader reader = new LDIFReader(sf2LdifResource.getFile());
-        inMemoryDirectoryServer.importFromLDIF(true, reader);
-        return inMemoryDirectoryServer;
+        Files.write(new File("target/generic_648.png").toPath(), loadAvatar);
     }
 
 }

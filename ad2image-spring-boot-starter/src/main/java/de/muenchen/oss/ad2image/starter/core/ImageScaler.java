@@ -46,10 +46,6 @@ public class ImageScaler {
 
             Graphics2D g2d = outputImage.createGraphics();
 
-            // Fill the background with white
-            //            g2d.setColor(Color.WHITE);
-            //            g2d.fillRect(0, 0, targetWidth, targetHeight);
-
             g2d.drawImage(scaledImage, 0, 0, null);
             g2d.dispose();
 
