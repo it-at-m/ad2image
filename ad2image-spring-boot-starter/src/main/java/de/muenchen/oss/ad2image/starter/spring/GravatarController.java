@@ -58,12 +58,15 @@ public class GravatarController {
     private final AvatarService avatarService;
     private final AvatarGenerator avatarGenerator;
     private final GravatarHashMapService gravatarHashMapService;
+    private final Ad2ImageConfigurationProperties confProps;
 
-    public GravatarController(AvatarService avatarService, AvatarGenerator avatarGenerator, GravatarHashMapService gravatarHashMapService) {
+    public GravatarController(AvatarService avatarService, AvatarGenerator avatarGenerator, GravatarHashMapService gravatarHashMapService,
+            Ad2ImageConfigurationProperties confProps) {
         super();
         this.avatarService = avatarService;
         this.avatarGenerator = avatarGenerator;
         this.gravatarHashMapService = gravatarHashMapService;
+        this.confProps = confProps;
     }
 
     @Operation(
@@ -98,9 +101,10 @@ public class GravatarController {
 
                             - `404`: returns a 404 response with no body
                             - `identicon`: renders an [Identicon](https://en.wikipedia.org/wiki/Identicon)
+                            - `mp`: renders a mystery person icon
                             """, schema = @Schema(
-                            allowableValues = { "404", "identicon" }
-                    )
+                            allowableValues = { "404", "identicon", "mp" }
+                    ))
             ) @RequestParam(
                     name = "d", required = false
             ) final String dParam,
@@ -163,7 +167,9 @@ public class GravatarController {
     }
 
     private Mode resolveMode(String defaultParam) {
-        Mode resolvedMode = Mode.M_FALLBACK_GENERIC;
+        Mode resolvedMode = confProps.getGravatar() != null && confProps.getGravatar().getDefaultMode() != null
+                ? confProps.getGravatar().getDefaultMode()
+                : Mode.M_FALLBACK_GENERIC;
         if (defaultParam == null) {
             return resolvedMode;
         }
@@ -171,6 +177,8 @@ public class GravatarController {
             return Mode.M_404;
         } else if (defaultParam.equals(Mode.M_IDENTICON.getParameterValue())) {
             return Mode.M_FALLBACK_IDENTICON;
+        } else if (defaultParam.equals("mp")) {
+            return Mode.M_FALLBACK_GENERIC;
         }
         return resolvedMode;
     }

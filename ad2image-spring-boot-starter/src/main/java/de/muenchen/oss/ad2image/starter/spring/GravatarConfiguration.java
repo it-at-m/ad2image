@@ -42,8 +42,9 @@ public class GravatarConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    GravatarController gravatarController(AvatarService service, AvatarGenerator avatarGenerator, GravatarHashMapService gravatarHashMapService) {
-        return new GravatarController(service, avatarGenerator, gravatarHashMapService);
+    GravatarController gravatarController(AvatarService service, AvatarGenerator avatarGenerator, GravatarHashMapService gravatarHashMapService,
+            Ad2ImageConfigurationProperties ad2ImageConfigurationProperties) {
+        return new GravatarController(service, avatarGenerator, gravatarHashMapService, ad2ImageConfigurationProperties);
     }
 
     @Bean
