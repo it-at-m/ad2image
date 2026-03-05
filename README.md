@@ -98,7 +98,7 @@ See [Configuration](#configuration) for more details on how to configure this en
 
 This endpoint also only supports a subset of the Gravatar API features:
 
-- Default image (`d` query param): only `identicon` and `404` are supported, rest will be ignored
+- Default image (`d` query param): `identicon`, `404`, and `mp` (mystery person) are supported; other values fall back to the configured gravatar default mode
 - Size: can be requested between 1 and 2048px
 - Force Default (`f`): not supported, will be ignored
 - Rating (`r`): not supported, will be ignored
@@ -159,7 +159,7 @@ To configure ad2image, add the corresponding `de.muenchen.oss.ad2image.*` proper
 ad2image can be configured via Spring environment abstraction.
 
 | Environment variable                                        | System/Spring property                                      | Description                                                                                                                                                                                                     | Default value                                     | Required |
-|-------------------------------------------------------------|-------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|----------|
+| ----------------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | -------- |
 | `DE_MUENCHEN_OSS_AD2IMAGE_ENABLED`                          | `de.muenchen.oss.ad2image.enabled`                          | can be used to disable ad2image auto configuration (if integrated in your own application)                                                                                                                      | -                                                 | no       |
 | `DE_MUENCHEN_OSS_AD2IMAGE_DEFAULT_MODE`                     | `de.muenchen.oss.ad2image.default-mode`                     | Default mode (`m`) if user provides none.                                                                                                                                                                       | `"M_FALLBACK_GENERIC"` (`fallbackGeneric`)        | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_AD_URL`                           | `de.muenchen.oss.ad2image.ad.url`                           | Connection URL for AD server, for example 'ldaps://example.com:636'.                                                                                                                                            | -                                                 | yes      |
@@ -174,6 +174,7 @@ ad2image can be configured via Spring environment abstraction.
 | `DE_MUENCHEN_OSS_AD2IMAGE_GRAVATAR_HASH_CACHE_REFRESH_CRON` | `de.muenchen.oss.ad2image.gravatar.hash-cache-refresh-cron` | Spring "cron" expression for periodic refresh of the SHA256 email address hashes, '-' to disable.                                                                                                               | `-`                                               | no       |
 | `DE_MUENCHEN_OSS_AD2IMAGE_GRAVATAR_MAP_POPULATION_FILTER`   | `de.muenchen.oss.ad2image.gravatar.map-population-filter`   | LDAP search filter for users which should be included in generation of SHA256-hashed email addresses.                                                                                                           | `(&(objectClass=organizationalPerson)(mail=*))`   | no       |
 | `DE_MUENCHEN_OSS_AD2IMAGE_GRAVATAR_PAGE_SIZE`               | `de.muenchen.oss.ad2image.gravatar.page-size`               | page size for retrieval of users during map population.                                                                                                                                                         | `500`                                             | no       |
+| `DE_MUENCHEN_OSS_AD2IMAGE_GRAVATAR_DEFAULT_MODE`            | `de.muenchen.oss.ad2image.gravatar.default-mode`            | Default mode for Gravatar API when the requested `d=` parameter is unsupported or missing. Independent from the main avatar API's default mode setting.                                                         | `M_FALLBACK_GENERIC`                              | no       |
 
 ## Contributing
 
@@ -203,31 +204,17 @@ Distributed under the MIT License. See [LICENSE](LICENSE) file for more informat
 it@M - opensource@muenchen.de
 
 [contributors-shield]: https://img.shields.io/github/contributors/it-at-m/ad2image.svg?style=for-the-badge
-
 [contributors-url]: https://github.com/it-at-m/ad2image/graphs/contributors
-
 [forks-shield]: https://img.shields.io/github/forks/it-at-m/ad2image.svg?style=for-the-badge
-
 [forks-url]: https://github.com/it-at-m/ad2image/network/members
-
 [stars-shield]: https://img.shields.io/github/stars/it-at-m/ad2image.svg?style=for-the-badge
-
 [stars-url]: https://github.com/it-at-m/ad2image/stargazers
-
 [issues-shield]: https://img.shields.io/github/issues/it-at-m/ad2image.svg?style=for-the-badge
-
 [issues-url]: https://github.com/it-at-m/ad2image/issues
-
 [license-shield]: https://img.shields.io/github/license/it-at-m/ad2image.svg?style=for-the-badge
-
 [license-url]: https://github.com/it-at-m/ad2image/blob/main/LICENSE
-
 [github-workflow-status]: https://img.shields.io/github/actions/workflow/status/it-at-m/ad2image/build.yaml?style=for-the-badge
-
 [github-workflow-status-url]: https://github.com/it-at-m/ad2image/actions/workflows/build.yaml
-
 [release-shield]: https://img.shields.io/github/v/release/it-at-m/ad2image?sort=semver&style=for-the-badge
-
 [release-url]: https://github.com/it-at-m/ad2image/releases
-
 [helm-chart-github]: https://artifacthub.io/packages/helm/it-at-m/ad2image
