@@ -24,6 +24,7 @@ package de.muenchen.oss.ad2image.starter.spring;
 
 import de.muenchen.oss.ad2image.starter.core.Ad2ImageConfigurationProperties;
 import de.muenchen.oss.ad2image.starter.core.AdConfigurationProperties;
+import de.muenchen.oss.ad2image.starter.core.AvatarGenerator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -41,8 +42,8 @@ public class GravatarConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    GravatarController gravatarController(AvatarService service, Ad2ImageConfigurationProperties ad2ImageProps, GravatarHashMapService gravatarHashMapService) {
-        return new GravatarController(service, ad2ImageProps, gravatarHashMapService);
+    GravatarController gravatarController(AvatarService service, AvatarGenerator avatarGenerator, GravatarHashMapService gravatarHashMapService) {
+        return new GravatarController(service, avatarGenerator, gravatarHashMapService);
     }
 
     @Bean
