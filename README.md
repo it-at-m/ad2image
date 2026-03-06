@@ -81,6 +81,7 @@ Possible modes (`m`):
   if the user has no photo stored in AD/Exchange
 - `fallbackGithub`: identical to `github`, but also responds correspondingly if the user itself does not exist in
   AD/Exchange
+- `initials`: renders a colored square avatar with the user's initials (first letter of given name + first letter of surname), derived from the user's AD `givenName` and `sn` attributes. The background color is deterministically derived from the user's uid. If no name is stored, a plain colored rectangle is rendered. Returns 404 if the user does not exist in AD.
 
 Possible resolutions (`size`): between 1 and 2048 pixels
 
@@ -98,7 +99,7 @@ See [Configuration](#configuration) for more details on how to configure this en
 
 This endpoint also only supports a subset of the Gravatar API features:
 
-- Default image (`d` query param): `identicon`, `404`, and `mp` (mystery person) are supported; other values fall back to the configured gravatar default mode
+- Default image (`d` query param): `identicon`, `404`, `mp` (mystery person), and `initials` are supported; other values fall back to the configured gravatar default mode
 - Size: can be requested between 1 and 2048px
 - Force Default (`f`): not supported, will be ignored
 - Rating (`r`): not supported, will be ignored
@@ -167,6 +168,8 @@ ad2image can be configured via Spring environment abstraction.
 | `DE_MUENCHEN_OSS_AD2IMAGE_AD_PASSWORD`                      | `de.muenchen.oss.ad2image.ad.password`                      | Password for AD authentication                                                                                                                                                                                  | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_BASE`              | `de.muenchen.oss.ad2image.ad.user-search-base`              | User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.                                                                                                                                   | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_AD_USER_SEARCH_FILTER`            | `de.muenchen.oss.ad2image.ad.user-search-filter`            | User Search filter, `{uid}` will be replaced with the requested user uid.                                                                                                                                       | `(&(objectClass=organizationalPerson)(cn={uid}))` | yes      |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_SN_ATTRIBUTE`                  | `de.muenchen.oss.ad2image.ad.sn-attribute`                  | LDAP attribute name for the user's surname, used to build initials avatars.                                                                                                                                     | `sn`                                              | no       |
+| `DE_MUENCHEN_OSS_AD2IMAGE_AD_GIVEN_NAME_ATTRIBUTE`          | `de.muenchen.oss.ad2image.ad.given-name-attribute`          | LDAP attribute name for the user's given name, used to build initials avatars.                                                                                                                                  | `givenName`                                       | no       |
 | `DE_MUENCHEN_OSS_AD2IMAGE_EWS_EWS_SERVICE_URL`              | `de.muenchen.oss.ad2image.ews.ews-service-url`              | [EWS service URL](https://learn.microsoft.com/en-US/exchange/client-developer/exchange-web-services/how-to-set-the-ews-service-url-by-using-the-ews-managed-api), e.g. `https://example.com/ews/Exchange.asmx`. | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_EWS_USERNAME`                     | `de.muenchen.oss.ad2image.ews.username`                     | Username for EWS [Basic Authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#basic-authentication).                             | -                                                 | yes      |
 | `DE_MUENCHEN_OSS_AD2IMAGE_EWS_PASSWORD`                     | `de.muenchen.oss.ad2image.ews.password`                     | Password for EWS [Basic Authentication](https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/authentication-and-ews-in-exchange#basic-authentication).                             | -                                                 | yes      |
