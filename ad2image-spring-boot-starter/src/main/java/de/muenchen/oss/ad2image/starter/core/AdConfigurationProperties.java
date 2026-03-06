@@ -56,6 +56,10 @@ public class AdConfigurationProperties {
     private String mailAttribute = "mail";
     @NotEmpty
     private String thumbnailPhotoAttribute = "thumbnailPhoto";
+    @NotEmpty
+    private String snAttribute = "sn";
+    @NotEmpty
+    private String givenNameAttribute = "givenName";
 
     /**
      * User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.
@@ -131,6 +135,22 @@ public class AdConfigurationProperties {
 
     public void setUserSearchFilter(String userSearchFilter) {
         this.userSearchFilter = userSearchFilter;
+    }
+
+    public String getSnAttribute() {
+        return snAttribute;
+    }
+
+    public void setSnAttribute(String snAttribute) {
+        this.snAttribute = snAttribute;
+    }
+
+    public String getGivenNameAttribute() {
+        return givenNameAttribute;
+    }
+
+    public void setGivenNameAttribute(String givenNameAttribute) {
+        this.givenNameAttribute = givenNameAttribute;
     }
 
 }

@@ -30,6 +30,8 @@ public class User implements Serializable {
     String uid;
     String email;
     byte[] thumbnailPhoto;
+    String sn;
+    String givenName;
 
     public String getUid() {
         return uid;
@@ -53,6 +55,22 @@ public class User implements Serializable {
 
     public void setThumbnailPhoto(byte[] thumbnailPhoto) {
         this.thumbnailPhoto = thumbnailPhoto;
+    }
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
+    }
+
+    public String getGivenName() {
+        return givenName;
+    }
+
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
     }
 
 }

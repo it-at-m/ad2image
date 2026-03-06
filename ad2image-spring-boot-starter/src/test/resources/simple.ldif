@@ -25,3 +25,13 @@ objectClass: top
 cn: nophoto.user
 uid: nophoto.user
 mail: nophoto.user.email
+
+dn: cn=initials.user,ou=Users,dc=example,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: initials.user
+uid: initials.user
+mail: initials.user.email
+givenName: John
+sn: Doe

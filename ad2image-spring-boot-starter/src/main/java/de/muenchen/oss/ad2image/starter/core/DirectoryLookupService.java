@@ -58,6 +58,8 @@ public class DirectoryLookupService {
         String uidAttribute = this.adConfigurationProps.getUidAttribute();
         String mailAttribute = this.adConfigurationProps.getMailAttribute();
         String thumbnailPhotoAttribute = this.adConfigurationProps.getThumbnailPhotoAttribute();
+        String snAttribute = this.adConfigurationProps.getSnAttribute();
+        String givenNameAttribute = this.adConfigurationProps.getGivenNameAttribute();
         log.debug("Searching for user '{}' in AD ...", uid);
         List<User> searchResult = ldapTemplate.search(
                 LdapQueryBuilder.query().base(this.adConfigurationProps.getUserSearchBase())
@@ -69,6 +71,14 @@ public class DirectoryLookupService {
                     Attribute thumbnailAttribute = attributes.get(thumbnailPhotoAttribute);
                     if (thumbnailAttribute != null) {
                         u.setThumbnailPhoto((byte[]) thumbnailAttribute.get());
+                    }
+                    Attribute snAttr = attributes.get(snAttribute);
+                    if (snAttr != null) {
+                        u.setSn((String) snAttr.get());
+                    }
+                    Attribute givenNameAttr = attributes.get(givenNameAttribute);
+                    if (givenNameAttr != null) {
+                        u.setGivenName((String) givenNameAttr.get());
                     }
                     return u;
                 });
