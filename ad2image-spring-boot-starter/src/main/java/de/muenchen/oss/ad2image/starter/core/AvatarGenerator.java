@@ -135,46 +135,6 @@ public class AvatarGenerator {
         return imageBytes;
     }
 
-    //    public byte[] loadAvatar(String uid, Mode mode, int size) {
-    //        log.info("Looking up '{}' in AD (mode='{}', size='{}')...", uid, mode, size);
-    //        List<User> users = findPersonInAD(uid);
-    //        byte[] avatarBytes = null;
-    //        if (users.size() == 1) {
-    //            User user = users.getFirst();
-    //            if (user.getThumbnailPhoto() != null) {
-    //                // user has stored a picture
-    //                if (size <= ImageSize.getAdDefaultImageSize().getSizePixels()) {
-    //                    log.debug("Using AD thumbnailPhoto as avatar for '{}'.", uid);
-    //                    if (size < ImageSize.getAdDefaultImageSize().getSizePixels()) {
-    //                        try {
-    //                            avatarBytes = ImageScaler.scaleImage(user.getThumbnailPhoto(), size, size);
-    //                        } catch (IOException e) {
-    //                            throw new RuntimeException("Failed to scale image", e);
-    //                        }
-    //                    } else {
-    //                        avatarBytes = user.getThumbnailPhoto();
-    //                    }
-    //                } else {
-    //                    log.debug("Calling Exchange EWS API GetUserPhoto for mail '{}' with size '{}'.", user.getEmail(),
-    //                            size);
-    //                    avatarBytes = getUserPhotoFromExchange(user.getEmail(), size);
-    //                }
-    //            } else {
-    //                log.debug("User '{}' has no photo stored, computing fallback avatar.", uid);
-    //                avatarBytes = generateFallbackAvatar(uid, mode, size);
-    //            }
-    //        } else {
-    //            if (users.size() > 1) {
-    //                log.warn("Found more than one users for '{}' in AD.", uid);
-    //                avatarBytes = generateFallbackAvatar(uid, mode, size);
-    //            } else {
-    //                log.debug("User '{}' not found in AD.", uid);
-    //                avatarBytes = generateFallbackAvatar(uid, mode, size);
-    //            }
-    //        }
-    //        return avatarBytes;
-    //    }
-
     private byte[] getGenericPhoto(boolean dark, int size) {
         try {
             String file = dark ? "account_dark.png" : "account.png";
