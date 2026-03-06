@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 
 import de.muenchen.oss.ad2image.starter.core.AvatarGenerator;
+import de.muenchen.oss.ad2image.starter.core.InitialsAvatarGenerator;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -96,6 +97,9 @@ public class AvatarService {
                 if (mode == Mode.M_404) {
                     log.debug("User '{}' has no photo stored and mode=404, returning null as photo", uid);
                     return null;
+                } else if (mode == Mode.M_INITIALS) {
+                    log.debug("Generating initials avatar for '{}'.", uid);
+                    avatarBytes = InitialsAvatarGenerator.generate(uid, buildInitials(user), size);
                 } else {
                     AvatarGenerator.AvatarType avatarType = getAvatarType(mode);
                     log.debug("User '{}' has no photo stored, computing fallback avatar with type {}...", uid, avatarType);
@@ -118,6 +122,13 @@ public class AvatarService {
             }
         }
         return avatarBytes;
+    }
+
+    private static String buildInitials(User user) {
+        String given = user.getGivenName();
+        String sn = user.getSn();
+        return (given != null && !given.isBlank() ? String.valueOf(Character.toUpperCase(given.charAt(0))) : "")
+                + (sn != null && !sn.isBlank() ? String.valueOf(Character.toUpperCase(sn.charAt(0))) : "");
     }
 
     private AvatarGenerator.AvatarType getAvatarType(Mode mode) {

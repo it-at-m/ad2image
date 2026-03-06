@@ -104,7 +104,7 @@ public class GravatarController {
                             - `mp`: renders a mystery person icon
                             """, schema = @Schema(
                             allowableValues = { "404", "identicon", "mp" }
-                    ))
+                    )
             ) @RequestParam(
                     name = "d", required = false
             ) final String dParam,
@@ -179,6 +179,8 @@ public class GravatarController {
             return Mode.M_FALLBACK_IDENTICON;
         } else if (defaultParam.equals("mp")) {
             return Mode.M_FALLBACK_GENERIC;
+        } else if (defaultParam.equals(Mode.M_INITIALS.getParameterValue())) {
+            return Mode.M_INITIALS;
         }
         return resolvedMode;
     }
