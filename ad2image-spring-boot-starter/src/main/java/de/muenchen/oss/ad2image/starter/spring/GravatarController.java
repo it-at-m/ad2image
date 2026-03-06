@@ -66,7 +66,14 @@ public class GravatarController {
         this.gravatarHashMapService = gravatarHashMapService;
     }
 
-    @Operation(summary = "Retrieve a users avatar image", description = "Retrieve a users avatar image based on their email hash")
+    @Operation(
+            summary = "Retrieve a users avatar image",
+            description = """
+                    Retrieve a users avatar image based on their email hash.
+
+                    If there is no account linked with the provided email hash or if the account has no photo stored, by default a generic account picture is returned.
+                    """
+    )
     @ApiResponses(
             value = {
                     @ApiResponse(
@@ -86,7 +93,12 @@ public class GravatarController {
                     required = true
             ) @PathVariable(name = "mailhash") String mailHash,
             @Parameter(
-                    description = "default when user has no image", schema = @Schema(
+                    description = """
+                            overrides the default when an account has no image stored
+
+                            - `404`: returns a 404 response with no body
+                            - `identicon`: renders an [Identicon](https://en.wikipedia.org/wiki/Identicon)
+                            """, schema = @Schema(
                             allowableValues = { "404", "identicon" }
                     )
             ) @RequestParam(

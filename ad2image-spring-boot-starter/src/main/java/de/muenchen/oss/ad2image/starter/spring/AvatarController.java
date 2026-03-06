@@ -92,7 +92,46 @@ public class AvatarController {
     @GetMapping(value = "avatar", produces = { MediaType.IMAGE_PNG_VALUE })
     public ResponseEntity<byte[]> avatar(
             @Parameter(description = "uid of the user", example = "john.doe", required = true) @RequestParam final String uid,
-            @Parameter(description = "retrieval mode", example = "fallbackGeneric") @RequestParam(
+            @Parameter(
+                    description = """
+                            retrieval mode - possible values:
+
+                            - `404`: 404 Response, if the user has no photo stored in AD/Exchange
+                            - `identicon`: renders an [Identicon](https://en.wikipedia.org/wiki/Identicon), if the user has no photo stored in
+                              AD/Exchange
+                            - `fallbackIdenticon`: identical to `identicon`, but also responds with an Identicon if the user itself does not exist
+                              in AD/Exchange
+                            - `generic`: renders an [generic placeholder icon](ad2image-spring-boot-starter/src/main/resources/account_64.png), if
+                              the user has no photo stored in AD/Exchange
+                            - `fallbackGeneric`: **default** - identical to `generic`, but also responds with an generic placeholder icon if the
+                              user itself does not exist in AD/Exchange
+                            - `genericDark`: renders a [generic placeholder icon with white foreground](ad2image-spring-boot-starter/src/main/resources/account_dark.png) (for dark mode applications), if
+                              the user has no photo stored in AD/Exchange
+                            - `fallbackGenericDark`: identical to `genericDark`, but also responds with a generic placeholder icon with white foreground if the
+                              user itself does not exist in AD/Exchange
+                            - `triangle`: renders
+                              an [randomly generated Avatar based on triangles](https://raw.githubusercontent.com/gabrie-allaigre/avatar-generator/master/doc/triangle1.png),
+                              if the user has no photo stored in AD/Exchange
+                            - `fallbackTriangle`: identical to `triangle`, but also responds correspondingly if the user itself does not exist in
+                              AD/Exchange
+                            - `square`: renders
+                              an [randomly generated Avatar based on squares](https://raw.githubusercontent.com/gabrie-allaigre/avatar-generator/master/doc/square1.png),
+                              if the user has no photo stored in AD/Exchange
+                            - `fallbackSquare`: identical to `square`, but also responds correspondingly if the user itself does not exist in
+                              AD/Exchange
+                            - `github`: renders
+                              an [randomly generated Avatar based Github avatar style](https://raw.githubusercontent.com/gabrie-allaigre/avatar-generator/master/doc/github2.png),
+                              if the user has no photo stored in AD/Exchange
+                            - `fallbackGithub`: identical to `github`, but also responds correspondingly if the user itself does not exist in
+                              AD/Exchange
+                            """,
+                    example = "fallbackGeneric", schema = @Schema(
+                            allowableValues = { "404", "identicon", "fallbackIdenticon", "generic", "fallbackGeneric", "genericDark", "fallbackGenericDark",
+                                    "triangle",
+                                    "fallbackTriangle", "square", "fallbackSquare", "github", "fallbackGithub" },
+                            defaultValue = "fallbackGeneric"
+                    )
+            ) @RequestParam(
                     name = "m", required = false
             ) final String mode,
             @Parameter(
