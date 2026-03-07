@@ -41,7 +41,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class GravatarConfiguration {
 
     /**
-     * Creates a GravatarController configured with the provided avatar services and configuration properties.
+     * Creates a GravatarController configured with the provided avatar services and configuration
+     * properties.
      *
      * @param service the AvatarService used to fetch and manage avatar data
      * @param avatarGenerator the AvatarGenerator responsible for producing avatar images
@@ -60,7 +61,8 @@ public class GravatarConfiguration {
      * Create a GravatarHashMapService configured with the application's LDAP context and properties.
      *
      * @param ad2ImageLdapContextSource the LDAP context source used for Active Directory lookups
-     * @param ad2ImageConfigurationProperties application configuration properties for AD-to-image behavior
+     * @param ad2ImageConfigurationProperties application configuration properties for AD-to-image
+     *            behavior
      * @return a configured GravatarHashMapService instance
      */
     @Bean

@@ -62,17 +62,23 @@ public class AvatarService {
     }
 
     /**
-     * Produces an avatar image for the given user identifier using directory data, Exchange photos, or fallback generators.
+     * Produces an avatar image for the given user identifier using directory data, Exchange photos, or
+     * fallback generators.
      *
-     * The method returns the user's stored AD thumbnail if available (scaling it when necessary), requests a larger
-     * photo from Exchange when a larger size is requested, or generates a fallback image when no photo exists. For
-     * non-existent users the method will generate a fallback image only for explicit fallback modes; otherwise it
+     * The method returns the user's stored AD thumbnail if available (scaling it when necessary),
+     * requests a larger
+     * photo from Exchange when a larger size is requested, or generates a fallback image when no photo
+     * exists. For
+     * non-existent users the method will generate a fallback image only for explicit fallback modes;
+     * otherwise it
      * returns null.
      *
-     * @param uid  the user identifier to resolve and generate an avatar for
-     * @param mode the avatar selection mode that controls fallback behavior and special modes (e.g., initials, 404)
+     * @param uid the user identifier to resolve and generate an avatar for
+     * @param mode the avatar selection mode that controls fallback behavior and special modes (e.g.,
+     *            initials, 404)
      * @param size the requested avatar edge length in pixels
-     * @return a byte array containing the avatar image data, or `null` when no avatar is available for the given mode
+     * @return a byte array containing the avatar image data, or `null` when no avatar is available for
+     *         the given mode
      * @throws RuntimeException if an image scaling operation fails
      */
     @Cacheable("avatars")
@@ -145,7 +151,8 @@ public class AvatarService {
      * the first character of each converted to uppercase and concatenated (given name first).
      *
      * @param user the user whose initials to build
-     * @return the concatenated uppercase initials (one or two characters), or an empty string if neither name is available
+     * @return the concatenated uppercase initials (one or two characters), or an empty string if
+     *         neither name is available
      */
     private static String buildInitials(User user) {
         String given = user.getGivenName();
@@ -158,7 +165,8 @@ public class AvatarService {
      * Map a Mode value to the corresponding AvatarGenerator.AvatarType.
      *
      * @param mode the requested avatar Mode
-     * @return the corresponding AvatarGenerator.AvatarType; returns GENERIC when the mode has no specific mapping
+     * @return the corresponding AvatarGenerator.AvatarType; returns GENERIC when the mode has no
+     *         specific mapping
      */
     private AvatarGenerator.AvatarType getAvatarType(Mode mode) {
         AvatarGenerator.AvatarType type = switch (mode) {

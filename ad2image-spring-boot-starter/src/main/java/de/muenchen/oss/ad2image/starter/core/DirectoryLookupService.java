@@ -49,11 +49,13 @@ public class DirectoryLookupService {
     /**
      * Locate a user in the configured LDAP directory by UID.
      *
-     * Searches the configured user search base using the configured search filter (with the given UID substituted)
+     * Searches the configured user search base using the configured search filter (with the given UID
+     * substituted)
      * and maps found LDAP attributes to a {@link User}.
      *
      * @param uid the user identifier to search for
-     * @return an Optional containing the matched {@link User} if exactly one entry is found, or empty if no entry is found
+     * @return an Optional containing the matched {@link User} if exactly one entry is found, or empty
+     *         if no entry is found
      * @throws IncorrectResultSizeDataAccessException if more than one entry matches the given UID
      */
     public Optional<User> findUserInDirectory(String uid) {

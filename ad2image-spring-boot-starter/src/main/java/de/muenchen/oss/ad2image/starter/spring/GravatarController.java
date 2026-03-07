@@ -63,10 +63,11 @@ public class GravatarController {
     /**
      * Create a GravatarController with the required services and configuration.
      *
-     * @param avatarService         service used to retrieve stored avatar bytes for a user
-     * @param avatarGenerator       generator used to produce fallback avatar images (identicon/generic/initials)
+     * @param avatarService service used to retrieve stored avatar bytes for a user
+     * @param avatarGenerator generator used to produce fallback avatar images
+     *            (identicon/generic/initials)
      * @param gravatarHashMapService service that maps MD5/SHA256 mail hashes to internal user IDs
-     * @param confProps             configuration properties (including the Gravatar default mode)
+     * @param confProps configuration properties (including the Gravatar default mode)
      */
     public GravatarController(AvatarService avatarService, AvatarGenerator avatarGenerator, GravatarHashMapService gravatarHashMapService,
             Ad2ImageConfigurationProperties confProps) {
@@ -80,17 +81,23 @@ public class GravatarController {
     /**
      * Serve a Gravatar-compatible PNG avatar for the given email hash.
      *
-     * <p>The endpoint returns the stored avatar for the resolved user when available; if no stored image exists the response
-     * behavior is controlled by the `d`/`default` override (supports `404`, `identicon`, `mp`, `initials`) or by the configured
-     * default mode. The response is served with Content-Type `image/png` and a Cache-Control max-age of 1 day.</p>
+     * <p>
+     * The endpoint returns the stored avatar for the resolved user when available; if no stored image
+     * exists the response
+     * behavior is controlled by the `d`/`default` override (supports `404`, `identicon`, `mp`,
+     * `initials`) or by the configured
+     * default mode. The response is served with Content-Type `image/png` and a Cache-Control max-age of
+     * 1 day.
+     * </p>
      *
-     * @param mailHash      SHA256 hash of the user's email (MD5 is also accepted but deprecated)
-     * @param dParam        optional override for the default fallback behavior when no stored image exists;
-     *                      allowable values: `"404"`, `"identicon"`, `"mp"`, `"initials"`
-     * @param defaultParam  hidden alias for the `d` parameter; used when `d` is not provided
+     * @param mailHash SHA256 hash of the user's email (MD5 is also accepted but deprecated)
+     * @param dParam optional override for the default fallback behavior when no stored image exists;
+     *            allowable values: `"404"`, `"identicon"`, `"mp"`, `"initials"`
+     * @param defaultParam hidden alias for the `d` parameter; used when `d` is not provided
      * @param requestedSParam optional requested image size in pixels
      * @param requestedSizeParam hidden alias for the `s` parameter; used when `s` is not provided
-     * @return a ResponseEntity containing the PNG image bytes when an avatar is returned; if the request resolves to a
+     * @return a ResponseEntity containing the PNG image bytes when an avatar is returned; if the
+     *         request resolves to a
      *         404 (user not found or `d=404`) the response will have HTTP status 404 and no body
      */
     @Operation(
@@ -194,14 +201,17 @@ public class GravatarController {
     /**
      * Resolve the avatar fallback mode using the controller configuration and an optional override.
      *
-     * <p>If {@code defaultParam} is null or does not match a known override value, the configured
-     * default mode (if set) is returned; otherwise Mode.M_FALLBACK_GENERIC is used.</p>
+     * <p>
+     * If {@code defaultParam} is null or does not match a known override value, the configured
+     * default mode (if set) is returned; otherwise Mode.M_FALLBACK_GENERIC is used.
+     * </p>
      *
      * @param defaultParam optional override string accepted values:
-     *                     the value returned by {@code Mode.M_404.getParameterValue()},
-     *                     {@code Mode.M_IDENTICON.getParameterValue()},
-     *                     {@code Mode.M_INITIALS.getParameterValue()},
-     *                     or the literal {@code "mp"} (maps to {@code M_FALLBACK_GENERIC}); comparison is case-sensitive
+     *            the value returned by {@code Mode.M_404.getParameterValue()},
+     *            {@code Mode.M_IDENTICON.getParameterValue()},
+     *            {@code Mode.M_INITIALS.getParameterValue()},
+     *            or the literal {@code "mp"} (maps to {@code M_FALLBACK_GENERIC}); comparison is
+     *            case-sensitive
      * @return the resolved {@code Mode} (one of {@code M_404}, {@code M_FALLBACK_IDENTICON},
      *         {@code M_FALLBACK_GENERIC}, or {@code M_INITIALS})
      */

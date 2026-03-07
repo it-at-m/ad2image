@@ -97,7 +97,8 @@ public class GravatarConfigurationProperties {
     /**
      * Sets the page size used when retrieving users.
      *
-     * @param pageSize the number of users to request per page; may be {@code null} to use the configured default (500)
+     * @param pageSize the number of users to request per page; may be {@code null} to use the
+     *            configured default (500)
      */
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
@@ -106,14 +107,16 @@ public class GravatarConfigurationProperties {
     /**
      * The default Gravatar API mode used when the requested `d=` parameter is missing or not supported.
      *
-     * @return the configured default `Mode` (used as the fallback for Gravatar `d=`), typically `Mode.M_FALLBACK_GENERIC`
+     * @return the configured default `Mode` (used as the fallback for Gravatar `d=`), typically
+     *         `Mode.M_FALLBACK_GENERIC`
      */
     public Mode getDefaultMode() {
         return defaultMode;
     }
 
     /**
-     * Sets the default Gravatar API mode used when a request's `d=` parameter is unsupported or missing.
+     * Sets the default Gravatar API mode used when a request's `d=` parameter is unsupported or
+     * missing.
      *
      * @param defaultMode the `Mode` to use as the Gravatar endpoint default
      */

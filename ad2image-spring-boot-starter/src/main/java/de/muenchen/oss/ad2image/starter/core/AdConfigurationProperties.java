@@ -136,9 +136,11 @@ public class AdConfigurationProperties {
     /**
      * Set the LDAP search filter template used to find user entries.
      *
-     * The filter may include the `{uid}` placeholder which will be replaced with the requested user identifier.
+     * The filter may include the `{uid}` placeholder which will be replaced with the requested user
+     * identifier.
      *
-     * @param userSearchFilter the LDAP user search filter template (e.g. "(&(objectClass=organizationalPerson)(cn={uid}))")
+     * @param userSearchFilter the LDAP user search filter template (e.g.
+     *            "(&(objectClass=organizationalPerson)(cn={uid}))")
      */
     public void setUserSearchFilter(String userSearchFilter) {
         this.userSearchFilter = userSearchFilter;

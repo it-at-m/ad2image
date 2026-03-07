@@ -61,7 +61,8 @@ public class User implements Serializable {
     /**
      * Set the user's thumbnail photo data.
      *
-     * @param thumbnailPhoto the image bytes for the user's thumbnail (e.g., JPEG/PNG), or `null` to clear it
+     * @param thumbnailPhoto the image bytes for the user's thumbnail (e.g., JPEG/PNG), or `null` to
+     *            clear it
      */
     public void setThumbnailPhoto(byte[] thumbnailPhoto) {
         this.thumbnailPhoto = thumbnailPhoto;
