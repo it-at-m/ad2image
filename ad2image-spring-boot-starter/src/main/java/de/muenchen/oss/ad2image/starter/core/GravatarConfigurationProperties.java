@@ -57,7 +57,7 @@ public class GravatarConfigurationProperties {
     /**
      * Default mode for Gravatar API when the requested 'd=' parameter is unsupported or missing.
      * This is independent from the main avatar API's default mode setting.
-     * Defaults to M_FALLBACK_GENERIC (mystery person).
+     * Defaults to M_FALLBACK_GENERIC (generic silhouette).
      */
     private Mode defaultMode = Mode.M_FALLBACK_GENERIC;
 

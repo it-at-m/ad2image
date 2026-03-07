@@ -82,6 +82,7 @@ Possible modes (`m`):
 - `fallbackGithub`: identical to `github`, but also responds correspondingly if the user itself does not exist in
   AD/Exchange
 - `initials`: renders a colored square avatar with the user's initials (first letter of given name + first letter of surname), derived from the user's AD `givenName` and `sn` attributes. The background color is deterministically derived from the user's uid. If no name is stored, a plain colored rectangle is rendered. Returns 404 if the user does not exist in AD.
+  The background colors in `initials` mode (implemented in [InitialsAvatarGenerator.java](ad2image-spring-boot-starter/src/main/java/de/muenchen/oss/ad2image/starter/core/InitialsAvatarGenerator.java)) are chosen using an HSL strategy (60% saturation and ~45% lightness) to provide sufficient contrast with the white initials text for accessibility.
 
 Possible resolutions (`size`): between 1 and 2048 pixels
 

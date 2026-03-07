@@ -50,7 +50,7 @@ public class InitialsAvatarGenerator {
      * @return JPEG bytes of the generated image
      */
     public static byte[] generate(String uid, String initials, int size) {
-        int seed = Math.abs(uid.hashCode());
+        int seed = uid.hashCode() & Integer.MAX_VALUE; // ensure non-negative
         float hue = (seed % 360) / 360.0f;
         Color bg = hslToRgb(hue, 0.60f, 0.45f);
 

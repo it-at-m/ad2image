@@ -102,8 +102,9 @@ public class GravatarController {
                             - `404`: returns a 404 response with no body
                             - `identicon`: renders an [Identicon](https://en.wikipedia.org/wiki/Identicon)
                             - `mp`: renders a mystery person icon
+                            - `initials`: renders user initials on a colored background
                             """, schema = @Schema(
-                            allowableValues = { "404", "identicon", "mp" }
+                            allowableValues = { "404", "identicon", "mp", "initials" }
                     )
             ) @RequestParam(
                     name = "d", required = false
