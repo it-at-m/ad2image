@@ -30,7 +30,14 @@ public class User implements Serializable {
     String uid;
     String email;
     byte[] thumbnailPhoto;
+    String sn;
+    String givenName;
 
+    /**
+     * Retrieves the user's unique identifier.
+     *
+     * @return the user's unique identifier (uid)
+     */
     public String getUid() {
         return uid;
     }
@@ -51,8 +58,50 @@ public class User implements Serializable {
         return thumbnailPhoto;
     }
 
+    /**
+     * Set the user's thumbnail photo data.
+     *
+     * @param thumbnailPhoto the image bytes for the user's thumbnail (e.g., JPEG/PNG), or `null` to
+     *            clear it
+     */
     public void setThumbnailPhoto(byte[] thumbnailPhoto) {
         this.thumbnailPhoto = thumbnailPhoto;
+    }
+
+    /**
+     * Gets the user's surname (family name).
+     *
+     * @return the surname (family name) of the user, or {@code null} if not set
+     */
+    public String getSn() {
+        return sn;
+    }
+
+    /**
+     * Sets the user's surname (family name).
+     *
+     * @param sn the surname to set
+     */
+    public void setSn(String sn) {
+        this.sn = sn;
+    }
+
+    /**
+     * Obtain the user's given (first) name.
+     *
+     * @return the given name, or {@code null} if not set
+     */
+    public String getGivenName() {
+        return givenName;
+    }
+
+    /**
+     * Sets the user's given name (first name).
+     *
+     * @param givenName the given name to assign to the user
+     */
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
     }
 
 }

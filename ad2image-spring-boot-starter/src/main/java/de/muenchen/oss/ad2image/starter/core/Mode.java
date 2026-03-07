@@ -35,7 +35,8 @@ public enum Mode {
     M_TRIANGLE("triangle"),
     M_FALLBACK_TRIANGLE("fallbackTriangle"),
     M_SQUARE("square"),
-    M_FALLBACK_SQUARE("fallbackSquare");
+    M_FALLBACK_SQUARE("fallbackSquare"),
+    M_INITIALS("initials");
 
     private final String parameterValue;
 

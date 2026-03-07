@@ -47,9 +47,16 @@ public class DirectoryLookupService {
     }
 
     /**
-     * @param uid uid of a user
-     * @return a {@link User}
-     * @throws IncorrectResultSizeDataAccessException if there is more than one user with the given uid
+     * Locate a user in the configured LDAP directory by UID.
+     *
+     * Searches the configured user search base using the configured search filter (with the given UID
+     * substituted)
+     * and maps found LDAP attributes to a {@link User}.
+     *
+     * @param uid the user identifier to search for
+     * @return an Optional containing the matched {@link User} if exactly one entry is found, or empty
+     *         if no entry is found
+     * @throws IncorrectResultSizeDataAccessException if more than one entry matches the given UID
      */
     public Optional<User> findUserInDirectory(String uid) {
         String userSearchFilter = this.adConfigurationProps.getUserSearchFilter();
@@ -58,6 +65,8 @@ public class DirectoryLookupService {
         String uidAttribute = this.adConfigurationProps.getUidAttribute();
         String mailAttribute = this.adConfigurationProps.getMailAttribute();
         String thumbnailPhotoAttribute = this.adConfigurationProps.getThumbnailPhotoAttribute();
+        String snAttribute = this.adConfigurationProps.getSnAttribute();
+        String givenNameAttribute = this.adConfigurationProps.getGivenNameAttribute();
         log.debug("Searching for user '{}' in AD ...", uid);
         List<User> searchResult = ldapTemplate.search(
                 LdapQueryBuilder.query().base(this.adConfigurationProps.getUserSearchBase())
@@ -69,6 +78,14 @@ public class DirectoryLookupService {
                     Attribute thumbnailAttribute = attributes.get(thumbnailPhotoAttribute);
                     if (thumbnailAttribute != null) {
                         u.setThumbnailPhoto((byte[]) thumbnailAttribute.get());
+                    }
+                    Attribute snAttr = attributes.get(snAttribute);
+                    if (snAttr != null) {
+                        u.setSn((String) snAttr.get());
+                    }
+                    Attribute givenNameAttr = attributes.get(givenNameAttribute);
+                    if (givenNameAttr != null) {
+                        u.setGivenName((String) givenNameAttr.get());
                     }
                     return u;
                 });
