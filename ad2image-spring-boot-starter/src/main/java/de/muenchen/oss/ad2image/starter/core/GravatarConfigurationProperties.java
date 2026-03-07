@@ -61,6 +61,11 @@ public class GravatarConfigurationProperties {
      */
     private Mode defaultMode = Mode.M_FALLBACK_GENERIC;
 
+    /**
+     * Whether the Gravatar compatibility endpoint is enabled.
+     *
+     * @return `true` if the gravatar compatibility endpoint is enabled, `false` otherwise.
+     */
     public boolean isEnabled() {
         return enabled;
     }
@@ -89,14 +94,29 @@ public class GravatarConfigurationProperties {
         return pageSize;
     }
 
+    /**
+     * Sets the page size used when retrieving users.
+     *
+     * @param pageSize the number of users to request per page; may be {@code null} to use the configured default (500)
+     */
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
     }
 
+    /**
+     * The default Gravatar API mode used when the requested `d=` parameter is missing or not supported.
+     *
+     * @return the configured default `Mode` (used as the fallback for Gravatar `d=`), typically `Mode.M_FALLBACK_GENERIC`
+     */
     public Mode getDefaultMode() {
         return defaultMode;
     }
 
+    /**
+     * Sets the default Gravatar API mode used when a request's `d=` parameter is unsupported or missing.
+     *
+     * @param defaultMode the `Mode` to use as the Gravatar endpoint default
+     */
     public void setDefaultMode(Mode defaultMode) {
         this.defaultMode = defaultMode;
     }

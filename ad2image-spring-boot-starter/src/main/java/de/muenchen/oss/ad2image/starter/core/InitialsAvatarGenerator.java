@@ -34,6 +34,9 @@ import javax.imageio.ImageIO;
 
 public class InitialsAvatarGenerator {
 
+    /**
+     * Prevents instantiation of this utility class.
+     */
     private InitialsAvatarGenerator() {
     }
 
@@ -83,6 +86,14 @@ public class InitialsAvatarGenerator {
         return baos.toByteArray();
     }
 
+    /**
+     * Convert an HSL color into an equivalent java.awt.Color in RGB space.
+     *
+     * @param h hue as a fraction of the full circle (0.0 to <1.0; values wrap)
+     * @param s saturation in the range 0.0 to 1.0
+     * @param l lightness in the range 0.0 to 1.0
+     * @return a Color whose RGB components correspond to the given HSL values
+     */
     private static Color hslToRgb(float h, float s, float l) {
         float c = (1 - Math.abs(2 * l - 1)) * s;
         float x = c * (1 - Math.abs((h * 6) % 2 - 1));
