@@ -124,11 +124,12 @@ public class AvatarController {
                               if the user has no photo stored in AD/Exchange
                             - `fallbackGithub`: identical to `github`, but also responds correspondingly if the user itself does not exist in
                               AD/Exchange
+                            - `initials`: renders user initials on a colored background
                             """,
                     example = "fallbackGeneric", schema = @Schema(
                             allowableValues = { "404", "identicon", "fallbackIdenticon", "generic", "fallbackGeneric", "genericDark", "fallbackGenericDark",
                                     "triangle",
-                                    "fallbackTriangle", "square", "fallbackSquare", "github", "fallbackGithub" },
+                                    "fallbackTriangle", "square", "fallbackSquare", "github", "fallbackGithub", "initials" },
                             defaultValue = "fallbackGeneric"
                     )
             ) @RequestParam(

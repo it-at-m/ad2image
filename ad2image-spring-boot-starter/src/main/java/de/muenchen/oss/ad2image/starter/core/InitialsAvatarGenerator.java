@@ -41,7 +41,7 @@ public class InitialsAvatarGenerator {
     }
 
     /**
-     * Generates a square JPEG avatar image for the given uid and initials.
+     * Generates a square PNG avatar image for the given uid and initials.
      * The background color is deterministically derived from the uid's hash code using HSL
      * (hue = uid.hashCode() % 360, saturation = 60%, lightness = 45%).
      * If initials is blank or null, a plain colored rectangle is returned (no text).
@@ -50,14 +50,14 @@ public class InitialsAvatarGenerator {
      * @param uid the user's uid (used as color seed)
      * @param initials the initials to render (e.g. "JD"), or blank/null for a plain rectangle
      * @param size the image size in pixels (width = height)
-     * @return JPEG bytes of the generated image
+     * @return PNG bytes of the generated image
      */
     public static byte[] generate(String uid, String initials, int size) {
         int seed = uid.hashCode() & Integer.MAX_VALUE; // ensure non-negative
         float hue = (seed % 360) / 360.0f;
         Color bg = hslToRgb(hue, 0.60f, 0.45f);
 
-        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = image.createGraphics();
         try {
             g2.setColor(bg);
@@ -67,7 +67,7 @@ public class InitialsAvatarGenerator {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 g2.setColor(Color.WHITE);
-                g2.setFont(new Font(Font.SANS_SERIF, Font.BOLD, Math.max(1, (int) (size * 0.4f))));
+                g2.setFont(new Font(Font.SANS_SERIF, Font.BOLD, Math.max(1, (int) (size * 0.5f))));
                 FontMetrics fm = g2.getFontMetrics();
                 int x = (size - fm.stringWidth(initials)) / 2;
                 int y = (size - fm.getHeight()) / 2 + fm.getAscent();
@@ -79,7 +79,7 @@ public class InitialsAvatarGenerator {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            ImageIO.write(image, "JPEG", baos);
+            ImageIO.write(image, "png", baos);
         } catch (IOException e) {
             throw new RuntimeException("Failed to generate initials avatar", e);
         }
