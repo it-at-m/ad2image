@@ -56,6 +56,10 @@ public class AdConfigurationProperties {
     private String mailAttribute = "mail";
     @NotEmpty
     private String thumbnailPhotoAttribute = "thumbnailPhoto";
+    @NotEmpty
+    private String snAttribute = "sn";
+    @NotEmpty
+    private String givenNameAttribute = "givenName";
 
     /**
      * User Search Base for user lookup, for example 'OU=Users,DC=mycompany,DC=com'.
@@ -129,8 +133,53 @@ public class AdConfigurationProperties {
         return userSearchFilter;
     }
 
+    /**
+     * Set the LDAP search filter template used to find user entries.
+     *
+     * The filter may include the `{uid}` placeholder which will be replaced with the requested user
+     * identifier.
+     *
+     * @param userSearchFilter the LDAP user search filter template (e.g.
+     *            "(&(objectClass=organizationalPerson)(cn={uid}))")
+     */
     public void setUserSearchFilter(String userSearchFilter) {
         this.userSearchFilter = userSearchFilter;
+    }
+
+    /**
+     * LDAP attribute name used for a user's surname.
+     *
+     * @return the configured surname attribute name (for example, "sn")
+     */
+    public String getSnAttribute() {
+        return snAttribute;
+    }
+
+    /**
+     * Set the LDAP attribute name used to read a user's surname (sn).
+     *
+     * @param snAttribute the LDAP attribute name to use for surname lookups
+     */
+    public void setSnAttribute(String snAttribute) {
+        this.snAttribute = snAttribute;
+    }
+
+    /**
+     * Gets the LDAP attribute name used for a user's given name.
+     *
+     * @return the LDAP attribute name for the user's given name
+     */
+    public String getGivenNameAttribute() {
+        return givenNameAttribute;
+    }
+
+    /**
+     * Sets the LDAP attribute name used for a user's given name.
+     *
+     * @param givenNameAttribute the attribute name (e.g. "givenName")
+     */
+    public void setGivenNameAttribute(String givenNameAttribute) {
+        this.givenNameAttribute = givenNameAttribute;
     }
 
 }

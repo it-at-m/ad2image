@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 
 import de.muenchen.oss.ad2image.starter.core.AvatarGenerator;
+import de.muenchen.oss.ad2image.starter.core.InitialsAvatarGenerator;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -60,6 +61,26 @@ public class AvatarService {
         this.ewsUserPhotoService = ewsUserPhotoService;
     }
 
+    /**
+     * Produces an avatar image for the given user identifier using directory data, Exchange photos, or
+     * fallback generators.
+     *
+     * The method returns the user's stored AD thumbnail if available (scaling it when necessary),
+     * requests a larger
+     * photo from Exchange when a larger size is requested, or generates a fallback image when no photo
+     * exists. For
+     * non-existent users the method will generate a fallback image only for explicit fallback modes;
+     * otherwise it
+     * returns null.
+     *
+     * @param uid the user identifier to resolve and generate an avatar for
+     * @param mode the avatar selection mode that controls fallback behavior and special modes (e.g.,
+     *            initials, 404)
+     * @param size the requested avatar edge length in pixels
+     * @return a byte array containing the avatar image data, or `null` when no avatar is available for
+     *         the given mode
+     * @throws RuntimeException if an image scaling operation fails
+     */
     @Cacheable("avatars")
     public byte[] get(String uid, Mode mode, int size) {
         byte[] avatarBytes = null;
@@ -96,6 +117,9 @@ public class AvatarService {
                 if (mode == Mode.M_404) {
                     log.debug("User '{}' has no photo stored and mode=404, returning null as photo", uid);
                     return null;
+                } else if (mode == Mode.M_INITIALS) {
+                    log.debug("Generating initials avatar for '{}'.", uid);
+                    avatarBytes = InitialsAvatarGenerator.generate(uid, buildInitials(user), size);
                 } else {
                     AvatarGenerator.AvatarType avatarType = getAvatarType(mode);
                     log.debug("User '{}' has no photo stored, computing fallback avatar with type {}...", uid, avatarType);
@@ -120,6 +144,30 @@ public class AvatarService {
         return avatarBytes;
     }
 
+    /**
+     * Builds uppercase initials from the user's given name and surname.
+     *
+     * If the user's given name and/or surname (sn) are present and not blank, this returns
+     * the first character of each converted to uppercase and concatenated (given name first).
+     *
+     * @param user the user whose initials to build
+     * @return the concatenated uppercase initials (one or two characters), or an empty string if
+     *         neither name is available
+     */
+    private static String buildInitials(User user) {
+        String given = user.getGivenName();
+        String sn = user.getSn();
+        return (given != null && !given.isBlank() ? String.valueOf(Character.toUpperCase(given.charAt(0))) : "")
+                + (sn != null && !sn.isBlank() ? String.valueOf(Character.toUpperCase(sn.charAt(0))) : "");
+    }
+
+    /**
+     * Map a Mode value to the corresponding AvatarGenerator.AvatarType.
+     *
+     * @param mode the requested avatar Mode
+     * @return the corresponding AvatarGenerator.AvatarType; returns GENERIC when the mode has no
+     *         specific mapping
+     */
     private AvatarGenerator.AvatarType getAvatarType(Mode mode) {
         AvatarGenerator.AvatarType type = switch (mode) {
         case M_GENERIC_DARK, M_FALLBACK_GENERIC_DARK -> AvatarGenerator.AvatarType.GENERIC_DARK;
