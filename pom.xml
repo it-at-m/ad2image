@@ -93,7 +93,7 @@
 			<plugin>
 				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>5.1.1</version>
+				<version>5.1.2</version>
 				<configuration>
 					<properties>
 						<owner>Landeshauptstadt München | it@M</owner>
