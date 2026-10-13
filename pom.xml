@@ -51,8 +51,6 @@
 
 		<!-- Disabled by default; enabled by the release profile -->
 		<njord.enabled>false</njord.enabled>
-		<njord.publisher>sonatype-cp</njord.publisher>
-		<njord.autoPublish>true</njord.autoPublish>
 	</properties>
 
 	<modules>

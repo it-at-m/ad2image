@@ -73,7 +73,7 @@ jobs:
           gpg-private-key: ${{ secrets.gpg_private_key }}
           gpg-passphrase-env-var: MAVEN_GPG_PASSPHRASE
 
-      - name: Stage all Maven modules
+      - name: Stage and publish to Sonatype Central
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.gpg_passphrase }}
           CENTRAL_USERNAME: ${{ secrets.sonatype_username }}
@@ -84,16 +84,6 @@ jobs:
             -DskipTests \
             -DaltDeploymentRepository=sonatype-central-portal::njord: \
             deploy
-
-      - name: Publish Maven artifacts to Sonatype Central
-        env:
-          CENTRAL_USERNAME: ${{ secrets.sonatype_username }}
-          CENTRAL_PASSWORD: ${{ secrets.sonatype_password }}
-        run: |
-          mvn -s .github/publish-settings.xml -N -B -ntp \
-            -Prelease \
-            -Dpublisher=sonatype-cp \
-            njord:publish
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
