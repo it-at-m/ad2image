@@ -25,7 +25,7 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Setup git user
         uses: fregante/setup-git-user@v2
@@ -33,21 +33,17 @@ jobs:
       - name: Install Java and Maven
         uses: actions/setup-java@v6
         with:
-          java-version: "25"
+          java-version: 25
           distribution: "temurin"
           cache: "maven"
 
       - name: Prepare maven release
-        env:
-          RELEASE_VERSION: ${{ inputs.release-version }}
-          DEVELOPMENT_VERSION: ${{ inputs.development-version }}
-          RELEASE_TAG: ${{ inputs.release-tag }}
-        run: |
-          mvn -B -ntp release:prepare \
-            -DreleaseVersion="${RELEASE_VERSION}" \
-            -DdevelopmentVersion="${DEVELOPMENT_VERSION}" \
-            -Dtag="${RELEASE_TAG}" \
-            -Darguments="-DskipTests"
+        run: >
+          mvn -B -ntp release:prepare 
+          -DreleaseVersion=${{ github.event.inputs.release-version }} 
+          -DdevelopmentVersion=${{ github.event.inputs.development-version }} 
+          -Dtag=${{ github.event.inputs.release-tag }} 
+          -Darguments="-DskipTests"
           
   perform-release:
     needs: prepare-release
@@ -59,32 +55,30 @@ jobs:
       - name: checkout release tag
         uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.release-tag }}
+          ref: ${{ github.event.inputs.release-tag }}
 
       - name: Setup git user
         uses: fregante/setup-git-user@v2
 
-      - name: Set up JDK 25, Central Portal credentials and GPG signing
+      - name: Set up JDK 25 and OSSRH auth / GPG signing
         uses: actions/setup-java@v6
         with:
-          java-version: "25"
+          java-version: 25
           distribution: "temurin"
           cache: "maven"
+          server-id: "central"
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.gpg_private_key }}
-          gpg-passphrase-env-var: MAVEN_GPG_PASSPHRASE
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      - name: Stage and publish Maven artifacts to Sonatype Central
+      - name: Perform maven release
+        run: >
+          mvn -B -ntp deploy -DskipTests -Prelease
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.gpg_passphrase }}
           CENTRAL_USERNAME: ${{ secrets.sonatype_username }}
           CENTRAL_PASSWORD: ${{ secrets.sonatype_password }}
-        run: |
-          mvn -s .github/publish-settings.xml -B -ntp \
-            -Prelease \
-            -DskipTests \
-            -DaltDeploymentRepository=sonatype-central-portal::njord: \
-            -Dpublisher=sonatype-cp \
-            deploy njord:publish
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
