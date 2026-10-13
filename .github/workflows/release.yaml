@@ -79,7 +79,7 @@ jobs:
           CENTRAL_USERNAME: ${{ secrets.sonatype_username }}
           CENTRAL_PASSWORD: ${{ secrets.sonatype_password }}
         run: |
-          mvn -s .github/maven-settings.xml -B -ntp \
+          mvn -s .github/publish-settings.xml -B -ntp \
             -Prelease \
             -DskipTests \
             -DaltDeploymentRepository=sonatype-central-portal::njord: \
