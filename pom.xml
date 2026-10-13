@@ -46,13 +46,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<!-- Maveniverse Njord -->
-		<version.njord>0.9.10</version.njord>
-
-		<!-- Disabled by default; enabled by the release profile -->
-		<njord.enabled>false</njord.enabled>
-		<njord.publisher>sonatype-cp</njord.publisher>
-		<njord.autoPublish>true</njord.autoPublish>
 	</properties>
 
 	<modules>
@@ -72,26 +65,7 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>sonatype-central-portal</id>
-			<url>https://central.sonatype.com/repository/maven-snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>sonatype-central-portal</id>
-			<url>https://repo.maven.apache.org/maven2</url>
-		</repository>
-	</distributionManagement>
-
 	<build>
-		<extensions>
-			<extension>
-				<groupId>eu.maveniverse.maven.njord</groupId>
-				<artifactId>extension3</artifactId>
-				<version>${version.njord}</version>
-			</extension>
-		</extensions>
-
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -105,7 +79,7 @@
 						<configuration>
 							<rules>
 								<requireMavenVersion>
-									<version>[3.9,)</version>
+									<version>[3.6,)</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
 									<version>[${java.version},)</version>
@@ -206,14 +180,15 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>eu.maveniverse.maven.plugins</groupId>
-					<artifactId>njord</artifactId>
-					<version>${version.njord}</version>
-				</plugin>
-				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
 					<version>3.3.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.sonatype.central</groupId>
+					<artifactId>central-publishing-maven-plugin</artifactId>
+					<version>0.11.0</version>
+					<extensions>true</extensions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -236,19 +211,11 @@
 	</build>
 
 	<profiles>
-		<profile>
-			<!-- Deployment profile (required so these plugins are only used when
+		<!-- Deployment profile (required so these plugins are only used when
 		deploying) -->
+
+		<profile>
 			<id>release</id>
-
-			<properties>
-				<njord.enabled>true</njord.enabled>
-				<njord.publisher>sonatype-cp</njord.publisher>
-				<njord.autoPublish>true</njord.autoPublish>
-				<njord.publishingType>automatic</njord.publishingType>
-				<njord.waitForStates>true</njord.waitForStates>
-			</properties>
-
 			<build>
 				<plugins>
 					<!-- Source plugin -->
@@ -309,6 +276,16 @@
 								</configuration>
 							</execution>
 						</executions>
+					</plugin>
+
+					<!-- publish to central -->
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<configuration>
+							<autoPublish>true</autoPublish>
+							<deploymentName>${project.groupId}:${project.version}</deploymentName>
+						</configuration>
 					</plugin>
 
 				</plugins>
