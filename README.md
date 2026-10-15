@@ -27,6 +27,8 @@ the [provided container image](#running-as-a-container-standalone) or [Helm char
 provide user photos for a richer user experience. For example, it can be very easily used as photo provider
 for [Vuetify's Avatar component](https://vuetifyjs.com/en/components/avatars/).
 
+![How does it work](docs/ad2image_flow.png)
+
 ## Built With
 
 This project is built with technologies we use in our projects:
