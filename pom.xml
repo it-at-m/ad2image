@@ -47,7 +47,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<!-- Maveniverse Njord -->
-		<version.njord>0.9.10</version.njord>
+		<version.njord>0.10.0</version.njord>
 
 		<!-- Disabled by default; enabled by the release profile -->
 		<njord.enabled>false</njord.enabled>
